@@ -50,6 +50,7 @@ function DetailPoster({ manga }: { manga: Manga }) {
           fill
           style={{ objectFit: "cover" }}
           priority
+          unoptimized
         />
       </div>
       <div
@@ -194,6 +195,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
             objectFit: "cover",
             filter: "blur(100px) opacity(0.3) saturate(1.5)",
           }}
+          unoptimized
         />
         <div
           style={{
@@ -361,7 +363,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
             >
               {summarize(
                 manga.description ||
-                  "Enter a realm of unparalleled storytelling. This series invites you on an extraordinary journey of visual and narrative discovery.",
+                "Enter a realm of unparalleled storytelling. This series invites you on an extraordinary journey of visual and narrative discovery.",
               )}
             </p>
 

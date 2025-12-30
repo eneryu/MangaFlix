@@ -36,15 +36,18 @@ const summarize = (text: string, length: number = 180) => {
 // ==================== CREATIVE HERO ====================
 function HeroShowcase({ mangas }: { mangas: Manga[] }) {
   const [index, setIndex] = React.useState(0);
+  const [expanded, setExpanded] = React.useState(false);
   const current = mangas[index];
 
   React.useEffect(() => {
     if (mangas.length === 0) return;
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % Math.min(mangas.length, 5));
+      if (!expanded) {
+        setIndex((prev) => (prev + 1) % Math.min(mangas.length, 5));
+      }
     }, 8000);
     return () => clearInterval(timer);
-  }, [mangas]);
+  }, [mangas, expanded]);
 
   if (!current) return <div className="hero-showcase shimmer-bg" />;
 
@@ -57,13 +60,14 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
           fill
           className="hero-bg-image"
           priority
+          unoptimized
         />
         <div className="hero-mask" />
         <div className="hero-bottom-fade" />
       </div>
 
       <div className="hero-main-content">
-        <div className="hero-text-block reveal-up">
+        <div className="hero-text-block reveal-up" style={{ alignSelf: expanded ? 'flex-start' : 'center' }}>
           <div className="hero-label">
             <Sparkles size={12} style={{ marginRight: "6px" }} />
             FEATURED MASTERPIECE
@@ -83,13 +87,36 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
               {current.titleAr}
             </span>
           )}
-          <p className="hero-summary">
-            {summarize(
-              current.description ||
-                "Embark on an epic journey where legends are born and destiny is forged in the fires of adventure.",
+          <div className="hero-summary" style={{ position: 'relative' }}>
+            <p style={{
+              maxHeight: expanded ? '400px' : '80px',
+              overflow: 'hidden',
+              transition: 'max-height 0.5s ease',
+              marginBottom: '8px'
+            }}>
+              {current.description || "Embark on an epic journey where legends are born and destiny is forged in the fires of adventure."}
+            </p>
+            {current.description && current.description.length > 150 && (
+              <button
+                onClick={() => setExpanded(!expanded)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--accent-primary)',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                {expanded ? 'SHOW LESS' : 'SHOW MORE'}
+              </button>
             )}
-          </p>
-          <div className="hero-actions-row">
+          </div>
+          <div className="hero-actions-row" style={{ marginTop: '24px' }}>
             <Link
               href={`/manga/${current.id}`}
               className="btn-premium btn-fill"
@@ -186,26 +213,26 @@ function CreativeRow({
       <div className="cards-slider" ref={scrollRef}>
         {loading
           ? Array(6)
-              .fill(0)
-              .map((_, i) => (
-                <div
-                  key={i}
-                  className="manga-card-v3 shimmer-bg"
-                  style={{
-                    minWidth: "200px",
-                    aspectRatio: "2/3",
-                    borderRadius: "12px",
-                  }}
-                />
-              ))
+            .fill(0)
+            .map((_, i) => (
+              <div
+                key={i}
+                className="manga-card-v3 shimmer-bg"
+                style={{
+                  minWidth: "200px",
+                  aspectRatio: "2/3",
+                  borderRadius: "12px",
+                }}
+              />
+            ))
           : mangas.map((m, i) => (
-              <div key={m.id} style={{ minWidth: wide ? "320px" : "200px" }}>
-                <MangaCard
-                  manga={m}
-                  rank={subtitle.includes("TOP") ? i + 1 : undefined}
-                />
-              </div>
-            ))}
+            <div key={m.id} style={{ minWidth: wide ? "320px" : "200px" }}>
+              <MangaCard
+                manga={m}
+                rank={subtitle.includes("TOP") ? i + 1 : undefined}
+              />
+            </div>
+          ))}
       </div>
     </div>
   );
@@ -245,7 +272,7 @@ export default function Home() {
     const handleScroll = () => {
       if (
         window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 500 &&
+        document.body.offsetHeight - 500 &&
         !loadingMore &&
         moreSections.length < 5
       ) {

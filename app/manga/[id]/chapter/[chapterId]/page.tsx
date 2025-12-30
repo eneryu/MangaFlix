@@ -69,8 +69,8 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
 
   const pageUrls = pagesData
     ? pagesData.pages.map((p) =>
-        getPageUrl(pagesData.baseUrl, pagesData.hash, p, "data"),
-      )
+      getPageUrl(pagesData.baseUrl, pagesData.hash, p, "data"),
+    )
     : [];
 
   const nextPage = () => {
@@ -258,6 +258,7 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
                     objectFit: "contain",
                   }}
                   priority={i === currentPage}
+                  unoptimized
                 />
               </div>
             );
