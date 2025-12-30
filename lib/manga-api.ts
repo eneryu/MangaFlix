@@ -4,6 +4,14 @@ import axios from "axios";
 const API_BASE = typeof window !== "undefined" ? "/api" : "https://api.mangadex.org";
 const MANGADEX_API = "https://api.mangadex.org";
 
+export interface MangaStatistics {
+    rating: {
+        average: number;
+        bayesian: number;
+    };
+    follows: number;
+}
+
 export interface Manga {
     id: string;
     title: string;
@@ -17,6 +25,8 @@ export interface Manga {
     genres: string[];
     rating?: number;
     follows?: number;
+    totalChapters?: number;
+    availableLanguages?: string[];
     author?: string;
     artist?: string;
 }
@@ -67,65 +77,16 @@ function cleanDescription(text: string): string {
     return cleaned;
 }
 
-// Status translations
-const statusMap: Record<string, string> = {
-    ongoing: "مستمر",
-    completed: "مكتمل",
-    hiatus: "متوقف",
-    cancelled: "ملغي",
-};
-
-// Genre translations
-const genreMap: Record<string, string> = {
-    action: "أكشن",
-    adventure: "مغامرات",
-    comedy: "كوميديا",
-    drama: "دراما",
-    fantasy: "فانتازيا",
-    horror: "رعب",
-    mystery: "غموض",
-    psychological: "نفسي",
-    romance: "رومانسي",
-    "sci-fi": "خيال علمي",
-    "slice of life": "شريحة من الحياة",
-    sports: "رياضة",
-    supernatural: "خارق للطبيعة",
-    thriller: "إثارة",
-    tragedy: "مأساة",
-    shounen: "شونين",
-    shoujo: "شوجو",
-    seinen: "سينين",
-    josei: "جوسي",
-    isekai: "إيسيكاي",
-    mecha: "ميكا",
-    "martial arts": "فنون قتالية",
-    "school life": "حياة مدرسية",
-    historical: "تاريخي",
-    music: "موسيقى",
-};
-
-function translateStatus(status: string): string {
-    return statusMap[status] || status;
-}
-
-function translateGenre(genre: string): string {
-    return genreMap[genre.toLowerCase()] || genre;
-}
-
-// Get cover URL from cover filename
-function getCoverUrl(mangaId: string, coverFileName: string): string {
-    return `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}.512.jpg`;
+function getCoverUrl(mangaId: string, fileName: string): string {
+    return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.512.jpg`;
 }
 
 // Parse manga from API response
-function parseManga(data: any, coverFileName?: string): Manga {
+function parseManga(data: any, coverFileName?: string, stats?: MangaStatistics): Manga {
     const attrs = data.attributes;
     const titles = attrs.title || {};
     const descriptions = attrs.description || {};
     const altTitles = attrs.altTitles || [];
-
-    // Find Arabic title if available
-    let titleAr = altTitles.find((t: any) => t.ar)?.ar;
 
     // Get genres/tags (English only)
     const genres = (attrs.tags || [])
@@ -139,6 +100,9 @@ function parseManga(data: any, coverFileName?: string): Manga {
     // Clean description
     const rawDesc = descriptions.en || (Object.values(descriptions)[0] as string) || "";
     const cleanedDesc = cleanDescription(rawDesc);
+
+    // Get available languages
+    const availableLanguages = attrs.availableTranslatedLanguage || [];
 
     return {
         id: data.id,
@@ -157,6 +121,9 @@ function parseManga(data: any, coverFileName?: string): Manga {
         status: attrs.status || "ongoing",
         year: attrs.year,
         genres,
+        rating: stats?.rating?.bayesian || stats?.rating?.average,
+        follows: stats?.follows,
+        availableLanguages,
         author: data.relationships?.find((r: any) => r.type === "author")
             ?.attributes?.name,
         artist: data.relationships?.find((r: any) => r.type === "artist")
@@ -164,7 +131,21 @@ function parseManga(data: any, coverFileName?: string): Manga {
     };
 }
 
-// Fetch popular manga
+// Fetch manga statistics
+export async function getMangaStatistics(mangaIds: string[]): Promise<Record<string, MangaStatistics>> {
+    try {
+        const params = new URLSearchParams();
+        mangaIds.forEach(id => params.append("manga[]", id));
+
+        const response = await axios.get(`${MANGADEX_API}/statistics/manga?${params.toString()}`);
+        return response.data.statistics || {};
+    } catch (error) {
+        console.error("Error fetching manga statistics:", error);
+        return {};
+    }
+}
+
+// Fetch popular manga with statistics
 export async function getPopularManga(limit = 20): Promise<Manga[]> {
     try {
         const params = new URLSearchParams();
@@ -174,17 +155,21 @@ export async function getPopularManga(limit = 20): Promise<Manga[]> {
         params.append("includes[]", "author");
         params.append("includes[]", "artist");
         params.append("availableTranslatedLanguage[]", "en");
-        params.append("availableTranslatedLanguage[]", "ar");
         params.append("contentRating[]", "safe");
         params.append("contentRating[]", "suggestive");
 
         const response = await axios.get(`${API_BASE}/manga?${params.toString()}`);
+        const mangas = response.data.data;
 
-        return response.data.data.map((manga: any) => {
+        // Get statistics for all mangas
+        const mangaIds = mangas.map((m: any) => m.id);
+        const stats = await getMangaStatistics(mangaIds);
+
+        return mangas.map((manga: any) => {
             const coverRel = manga.relationships?.find(
                 (r: any) => r.type === "cover_art",
             );
-            return parseManga(manga, coverRel?.attributes?.fileName);
+            return parseManga(manga, coverRel?.attributes?.fileName, stats[manga.id]);
         });
     } catch (error) {
         console.error("Error fetching popular manga:", error);
@@ -201,18 +186,21 @@ export async function getLatestManga(limit = 20): Promise<Manga[]> {
         params.append("includes[]", "cover_art");
         params.append("includes[]", "author");
         params.append("includes[]", "artist");
-        params.append("availableTranslatedLanguage[]", "en");
-        params.append("availableTranslatedLanguage[]", "ar");
         params.append("contentRating[]", "safe");
         params.append("contentRating[]", "suggestive");
 
         const response = await axios.get(`${API_BASE}/manga?${params.toString()}`);
+        const mangas = response.data.data;
 
-        return response.data.data.map((manga: any) => {
+        // Get statistics
+        const mangaIds = mangas.map((m: any) => m.id);
+        const stats = await getMangaStatistics(mangaIds);
+
+        return mangas.map((manga: any) => {
             const coverRel = manga.relationships?.find(
                 (r: any) => r.type === "cover_art",
             );
-            return parseManga(manga, coverRel?.attributes?.fileName);
+            return parseManga(manga, coverRel?.attributes?.fileName, stats[manga.id]);
         });
     } catch (error) {
         console.error("Error fetching latest manga:", error);
@@ -224,8 +212,8 @@ export async function getLatestManga(limit = 20): Promise<Manga[]> {
 export async function searchManga(query: string, limit = 20): Promise<Manga[]> {
     try {
         const params = new URLSearchParams();
-        params.append("limit", limit.toString());
         params.append("title", query);
+        params.append("limit", limit.toString());
         params.append("includes[]", "cover_art");
         params.append("includes[]", "author");
         params.append("includes[]", "artist");
@@ -233,12 +221,16 @@ export async function searchManga(query: string, limit = 20): Promise<Manga[]> {
         params.append("contentRating[]", "suggestive");
 
         const response = await axios.get(`${API_BASE}/manga?${params.toString()}`);
+        const mangas = response.data.data;
 
-        return response.data.data.map((manga: any) => {
+        const mangaIds = mangas.map((m: any) => m.id);
+        const stats = await getMangaStatistics(mangaIds);
+
+        return mangas.map((manga: any) => {
             const coverRel = manga.relationships?.find(
                 (r: any) => r.type === "cover_art",
             );
-            return parseManga(manga, coverRel?.attributes?.fileName);
+            return parseManga(manga, coverRel?.attributes?.fileName, stats[manga.id]);
         });
     } catch (error) {
         console.error("Error searching manga:", error);
@@ -246,61 +238,103 @@ export async function searchManga(query: string, limit = 20): Promise<Manga[]> {
     }
 }
 
-// Get single manga details
+// Get manga details
 export async function getMangaDetails(id: string): Promise<Manga | null> {
     try {
-        const response = await axios.get(`${API_BASE}/manga/${id}`);
+        const params = new URLSearchParams();
+        params.append("includes[]", "cover_art");
+        params.append("includes[]", "author");
+        params.append("includes[]", "artist");
 
+        const response = await axios.get(`${API_BASE}/manga/${id}?${params.toString()}`);
         const manga = response.data.data;
+
+        // Get statistics
+        const stats = await getMangaStatistics([id]);
+
         const coverRel = manga.relationships?.find(
             (r: any) => r.type === "cover_art",
         );
-        return parseManga(manga, coverRel?.attributes?.fileName);
+
+        return parseManga(manga, coverRel?.attributes?.fileName, stats[id]);
     } catch (error) {
         console.error("Error fetching manga details:", error);
         return null;
     }
 }
 
-// Get manga chapters (sorted by chapter number)
-export async function getMangaChapters(
-    mangaId: string,
-    languages = ["en", "ar"],
-): Promise<Chapter[]> {
+// Get related manga by genre
+export async function getRelatedManga(mangaId: string, genres: string[], limit = 6): Promise<Manga[]> {
     try {
         const params = new URLSearchParams();
-        params.append("limit", "500");
-        languages.forEach((lang) => params.append("translatedLanguage[]", lang));
-        params.append("order[chapter]", "asc");
-        params.append("includes[]", "scanlation_group");
+        params.append("limit", limit.toString());
+        params.append("order[relevance]", "desc");
+        params.append("includes[]", "cover_art");
 
-        const response = await axios.get(
-            `${API_BASE}/manga/${mangaId}/chapters?${params.toString()}`,
-        );
+        // Add genre tags
+        genres.slice(0, 3).forEach(genre => {
+            params.append("includedTags[]", genre);
+        });
 
-        return response.data.data.map((ch: any) => ({
-            id: ch.id,
-            chapter: ch.attributes.chapter || "0",
-            title: ch.attributes.title || `الفصل ${ch.attributes.chapter}`,
-            language: ch.attributes.translatedLanguage,
-            pages: ch.attributes.pages,
-            publishedAt: ch.attributes.publishAt,
-            scanlationGroup: ch.relationships?.find(
-                (r: any) => r.type === "scanlation_group",
-            )?.attributes?.name,
-        }));
+        // Exclude current manga
+        params.append("excludedIds[]", mangaId);
+
+        params.append("contentRating[]", "safe");
+        params.append("contentRating[]", "suggestive");
+
+        const response = await axios.get(`${API_BASE}/manga?${params.toString()}`);
+        const mangas = response.data.data;
+
+        const mangaIds = mangas.map((m: any) => m.id);
+        const stats = await getMangaStatistics(mangaIds);
+
+        return mangas.map((manga: any) => {
+            const coverRel = manga.relationships?.find(
+                (r: any) => r.type === "cover_art",
+            );
+            return parseManga(manga, coverRel?.attributes?.fileName, stats[manga.id]);
+        });
     } catch (error) {
-        console.error("Error fetching manga chapters:", error);
+        console.error("Error fetching related manga:", error);
         return [];
     }
 }
 
-// Get chapter pages for reading
-export async function getChapterPages(
-    chapterId: string,
-): Promise<ChapterPages | null> {
+// Get manga chapters with count
+export async function getMangaChapters(
+    mangaId: string,
+    languages: string[] = ["en"],
+): Promise<Chapter[]> {
     try {
-        const response = await axios.get(`${API_BASE}/chapter/${chapterId}`);
+        const params = new URLSearchParams();
+        params.append("manga", mangaId);
+        params.append("limit", "500");
+        params.append("order[chapter]", "desc");
+        params.append("translatedLanguage[]", languages.join(","));
+
+        const response = await axios.get(`${API_BASE}/chapter?${params.toString()}`);
+
+        return response.data.data.map((chapter: any) => ({
+            id: chapter.id,
+            chapter: chapter.attributes.chapter || "0",
+            title: chapter.attributes.title || "",
+            language: chapter.attributes.translatedLanguage,
+            pages: chapter.attributes.pages || 0,
+            publishedAt: chapter.attributes.publishAt || chapter.attributes.createdAt,
+            scanlationGroup: chapter.relationships?.find(
+                (r: any) => r.type === "scanlation_group",
+            )?.attributes?.name,
+        }));
+    } catch (error) {
+        console.error("Error fetching chapters:", error);
+        return [];
+    }
+}
+
+// Get chapter pages
+export async function getChapterPages(chapterId: string): Promise<ChapterPages | null> {
+    try {
+        const response = await axios.get(`${API_BASE}/at-home/server/${chapterId}`);
         const data = response.data;
 
         return {
@@ -315,15 +349,12 @@ export async function getChapterPages(
     }
 }
 
-// Build full page URL
+// Get page URL
 export function getPageUrl(
     baseUrl: string,
     hash: string,
-    filename: string,
+    page: string,
     quality: "data" | "data-saver" = "data",
 ): string {
-    return `${baseUrl}/${quality}/${hash}/${filename}`;
+    return `${baseUrl}/${quality}/${hash}/${page}`;
 }
-
-// Export translations for UI
-export { statusMap, genreMap, translateStatus, translateGenre };
