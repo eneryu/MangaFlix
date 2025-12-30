@@ -52,27 +52,93 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
   if (!current) return <div className="hero-showcase shimmer-bg" />;
 
   return (
-    <section className="hero-showcase">
-      <div className="hero-bg-parallax">
+    <section
+      style={{
+        position: 'relative',
+        width: '100%',
+        minHeight: expanded ? 'auto' : '100vh',
+        maxHeight: expanded ? 'none' : '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        paddingTop: expanded ? '120px' : '140px',
+        paddingBottom: expanded ? '80px' : '100px',
+        marginBottom: '60px'
+      }}
+    >
+      {/* Background */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0
+      }}>
         <Image
           src={current.coverUrl}
           alt=""
           fill
-          className="hero-bg-image"
+          style={{
+            objectFit: 'cover',
+            filter: 'blur(80px) opacity(0.3) saturate(1.5)'
+          }}
           priority
           unoptimized
         />
-        <div className="hero-mask" />
-        <div className="hero-bottom-fade" />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, var(--bg-deep) 0%, transparent 50%, var(--bg-deep) 100%)'
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '200px',
+          background: 'linear-gradient(to top, var(--bg-deep), transparent)'
+        }} />
       </div>
 
-      <div className="hero-main-content">
-        <div className="hero-text-block reveal-up" style={{ alignSelf: expanded ? 'flex-start' : 'center' }}>
-          <div className="hero-label">
+      {/* Content */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        width: '100%',
+        maxWidth: 'var(--container-max)',
+        margin: '0 auto',
+        padding: '0 40px',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '80px',
+        alignItems: expanded ? 'flex-start' : 'center'
+      }}>
+        {/* Text Block */}
+        <div className="reveal-up">
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '6px 16px',
+            background: 'rgba(0, 255, 170, 0.1)',
+            border: '1px solid rgba(0, 255, 170, 0.2)',
+            borderRadius: '100px',
+            fontSize: '11px',
+            fontWeight: 800,
+            color: 'var(--accent-primary)',
+            letterSpacing: '2px',
+            marginBottom: '24px'
+          }}>
             <Sparkles size={12} style={{ marginRight: "6px" }} />
             FEATURED MASTERPIECE
           </div>
-          <h1 className="hero-display-title">{current.title}</h1>
+          <h1 style={{
+            fontSize: 'clamp(3rem, 8vw, 5.5rem)',
+            fontWeight: 900,
+            lineHeight: 0.95,
+            letterSpacing: '-3px',
+            marginBottom: '20px',
+            color: '#fff',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word'
+          }}>{current.title}</h1>
           {current.titleAr && (
             <span
               style={{
@@ -87,12 +153,15 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
               {current.titleAr}
             </span>
           )}
-          <div className="hero-summary" style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', marginBottom: '32px' }}>
             <p style={{
-              maxHeight: expanded ? '400px' : '80px',
+              maxHeight: expanded ? '800px' : '100px',
               overflow: 'hidden',
               transition: 'max-height 0.5s ease',
-              marginBottom: '8px'
+              marginBottom: '12px',
+              fontSize: '1.1rem',
+              lineHeight: 1.7,
+              color: 'var(--text-dim)'
             }}>
               {current.description || "Embark on an epic journey where legends are born and destiny is forged in the fires of adventure."}
             </p>
@@ -116,7 +185,7 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
               </button>
             )}
           </div>
-          <div className="hero-actions-row" style={{ marginTop: '24px' }}>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Link
               href={`/manga/${current.id}`}
               className="btn-premium btn-fill"
@@ -134,16 +203,30 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
           </div>
         </div>
 
+        {/* Poster */}
         <div
-          className="hero-poster-wrapper reveal-up"
-          style={{ animationDelay: "0.2s" }}
+          className="reveal-up"
+          style={{
+            animationDelay: "0.2s",
+            position: 'relative',
+            maxWidth: '450px',
+            justifySelf: 'end'
+          }}
         >
-          <div className="hero-poster-card">
+          <div style={{
+            position: 'relative',
+            aspectRatio: '2/3',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            boxShadow: '0 40px 100px rgba(0, 0, 0, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
             <Image
               src={current.coverUrl}
               alt={current.title}
               fill
               style={{ objectFit: "cover" }}
+              unoptimized
             />
           </div>
         </div>
