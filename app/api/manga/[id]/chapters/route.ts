@@ -6,7 +6,7 @@ import { sendNewChapterNotification } from "@/lib/services/pusher";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const mangaId = params.id;
@@ -17,39 +17,37 @@ export async function GET(
         isPublished: true,
       },
       orderBy: {
-        number: 'desc',
+        number: "desc",
       },
       include: {
         _count: {
           select: {
             pages: true,
-          }
-        }
+          },
+        },
       },
     });
 
     return NextResponse.json(chapters);
   } catch (error) {
     console.error("Error fetching chapters:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 401 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 401,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -62,14 +60,13 @@ export async function POST(
     });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المستخدم غير موجود" }), {
+        status: 404,
+      });
     }
 
     const mangaId = params.id;
-    
+
     // تحقق من ملكية المانجا
     const manga = await prisma.manga.findUnique({
       where: {
@@ -84,16 +81,15 @@ export async function POST(
     });
 
     if (!manga) {
-      return new NextResponse(
-        JSON.stringify({ error: "المانجا غير موجودة" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المانجا غير موجودة" }), {
+        status: 404,
+      });
     }
 
     if (manga.authorId !== user.id) {
       return new NextResponse(
         JSON.stringify({ error: "غير مسموح - لست مؤلف هذه المانجا" }),
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -104,7 +100,7 @@ export async function POST(
     if (!title || !number || !pages || pages.length === 0) {
       return new NextResponse(
         JSON.stringify({ error: "جميع الحقول المطلوبة يجب تعبئتها" }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -125,7 +121,7 @@ export async function POST(
       include: {
         pages: {
           orderBy: {
-            order: 'asc',
+            order: "asc",
           },
         },
       },
@@ -151,8 +147,8 @@ export async function POST(
       data: {
         exp: {
           increment: expPoints,
-        }
-      }
+        },
+      },
     });
 
     // تحقق ما إذا كان المستخدم قد وصل إلى مستوى جديد
@@ -182,17 +178,16 @@ export async function POST(
           maxExp: Math.floor(updatedUser.maxExp * 1.5), // زيادة حد الخبرة المطلوب للمستوى التالي
           score: {
             increment: 25, // نقاط إضافية للمستوى الجديد
-          }
-        }
+          },
+        },
       });
     }
 
     return NextResponse.json(newChapter, { status: 201 });
   } catch (error) {
     console.error("Error creating chapter:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
-} 
+}

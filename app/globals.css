@@ -282,7 +282,7 @@
 }
 
 /* Premium Typography */
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
 
 :root {
   /* Rich & Deep Color Palette */
@@ -314,7 +314,11 @@
 }
 
 body {
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Urbanist",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   background: var(--bg-deep);
   color: var(--text-main);
   min-height: 100vh;
@@ -326,7 +330,7 @@ h1,
 h2,
 h3,
 .font-heading {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 /* ==================== LAYOUT SYSTEM ==================== */
@@ -467,7 +471,11 @@ h3,
 .hero-mask {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 70% 30%, transparent 0%, var(--bg-deep) 80%);
+  background: radial-gradient(
+    circle at 70% 30%,
+    transparent 0%,
+    var(--bg-deep) 80%
+  );
 }
 
 /* ==================== VIRTUAL PANEL READER ==================== */
@@ -502,7 +510,9 @@ h3,
   max-height: 90vh;
   width: auto;
   border-radius: 8px;
-  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8), 0 30px 60px -30px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    0 50px 100px -20px rgba(0, 0, 0, 0.8),
+    0 30px 60px -30px rgba(0, 0, 0, 0.9);
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
   transform-style: preserve-3d;
 }
@@ -653,7 +663,8 @@ h3,
   width: 100%;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7),
+  box-shadow:
+    0 30px 60px -12px rgba(0, 0, 0, 0.7),
     0 18px 36px -18px rgba(0, 0, 0, 0.8),
     0 0 40px rgba(0, 255, 170, 0.1);
   transform: rotateY(-10deg) rotateX(5deg);

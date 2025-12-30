@@ -36,7 +36,7 @@ export default function SettingsPage() {
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const [settings, setSettings] = useState<SiteSettings>({
     siteName: "مانجا جاك",
     siteDescription: "منصة لقراءة المانجا والروايات اليابانية",
@@ -54,8 +54,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     // التحقق مما إذا كان المستخدم مديرًا
-    if (session?.user && session.user.role !== 'ADMIN') {
-      router.push('/dashboard');
+    if (session?.user && session.user.role !== "ADMIN") {
+      router.push("/dashboard");
       return;
     }
 
@@ -66,7 +66,7 @@ export default function SettingsPage() {
         // const response = await fetch('/api/admin/settings');
         // const data = await response.json();
         // setSettings(data);
-        
+
         // هنا نستخدم البيانات الافتراضية المحددة مسبقًا
         setTimeout(() => {
           setIsLoading(false);
@@ -81,9 +81,9 @@ export default function SettingsPage() {
   }, [session, router]);
 
   const handleChange = (field: keyof SiteSettings, value: any) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -96,25 +96,27 @@ export default function SettingsPage() {
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify(settings)
       // });
-      
+
       // محاكاة طلب API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       toast({
-        title: language === 'ar' ? 'تم حفظ الإعدادات' : 'Settings Saved',
-        description: language === 'ar' 
-          ? 'تم تحديث إعدادات الموقع بنجاح'
-          : 'Site settings have been updated successfully',
-        variant: 'default',
+        title: language === "ar" ? "تم حفظ الإعدادات" : "Settings Saved",
+        description:
+          language === "ar"
+            ? "تم تحديث إعدادات الموقع بنجاح"
+            : "Site settings have been updated successfully",
+        variant: "default",
       });
     } catch (error) {
       console.error("Error saving settings:", error);
       toast({
-        title: language === 'ar' ? 'خطأ' : 'Error',
-        description: language === 'ar' 
-          ? 'حدث خطأ أثناء حفظ الإعدادات'
-          : 'An error occurred while saving settings',
-        variant: 'destructive',
+        title: language === "ar" ? "خطأ" : "Error",
+        description:
+          language === "ar"
+            ? "حدث خطأ أثناء حفظ الإعدادات"
+            : "An error occurred while saving settings",
+        variant: "destructive",
       });
     } finally {
       setIsSaving(false);
@@ -133,7 +135,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">
-          {language === 'ar' ? 'إعدادات الموقع' : 'Site Settings'}
+          {language === "ar" ? "إعدادات الموقع" : "Site Settings"}
         </h1>
       </div>
 
@@ -141,19 +143,19 @@ export default function SettingsPage() {
         <TabsList className="grid grid-cols-4 mb-8">
           <TabsTrigger value="general">
             <Globe className="mr-2 h-4 w-4" />
-            {language === 'ar' ? 'عام' : 'General'}
+            {language === "ar" ? "عام" : "General"}
           </TabsTrigger>
           <TabsTrigger value="security">
             <Shield className="mr-2 h-4 w-4" />
-            {language === 'ar' ? 'الأمان' : 'Security'}
+            {language === "ar" ? "الأمان" : "Security"}
           </TabsTrigger>
           <TabsTrigger value="content">
             <Upload className="mr-2 h-4 w-4" />
-            {language === 'ar' ? 'المحتوى' : 'Content'}
+            {language === "ar" ? "المحتوى" : "Content"}
           </TabsTrigger>
           <TabsTrigger value="legal">
             <Settings className="mr-2 h-4 w-4" />
-            {language === 'ar' ? 'قانوني' : 'Legal'}
+            {language === "ar" ? "قانوني" : "Legal"}
           </TabsTrigger>
         </TabsList>
 
@@ -162,48 +164,54 @@ export default function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="siteName">
-                  {language === 'ar' ? 'اسم الموقع' : 'Site Name'}
+                  {language === "ar" ? "اسم الموقع" : "Site Name"}
                 </Label>
                 <Input
                   id="siteName"
                   value={settings.siteName}
-                  onChange={(e) => handleChange('siteName', e.target.value)}
+                  onChange={(e) => handleChange("siteName", e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="contactEmail">
-                  {language === 'ar' ? 'البريد الإلكتروني للتواصل' : 'Contact Email'}
+                  {language === "ar"
+                    ? "البريد الإلكتروني للتواصل"
+                    : "Contact Email"}
                 </Label>
                 <Input
                   id="contactEmail"
                   type="email"
                   value={settings.contactEmail}
-                  onChange={(e) => handleChange('contactEmail', e.target.value)}
+                  onChange={(e) => handleChange("contactEmail", e.target.value)}
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="siteDescription">
-                {language === 'ar' ? 'وصف الموقع' : 'Site Description'}
+                {language === "ar" ? "وصف الموقع" : "Site Description"}
               </Label>
               <Textarea
                 id="siteDescription"
                 value={settings.siteDescription}
-                onChange={(e) => handleChange('siteDescription', e.target.value)}
+                onChange={(e) =>
+                  handleChange("siteDescription", e.target.value)
+                }
                 rows={3}
               />
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="maintenanceMode"
                 checked={settings.maintenanceMode}
-                onCheckedChange={(checked) => handleChange('maintenanceMode', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("maintenanceMode", checked)
+                }
               />
               <Label htmlFor="maintenanceMode">
-                {language === 'ar' ? 'وضع الصيانة' : 'Maintenance Mode'}
+                {language === "ar" ? "وضع الصيانة" : "Maintenance Mode"}
               </Label>
             </div>
           </div>
@@ -215,28 +223,40 @@ export default function SettingsPage() {
               <Switch
                 id="enableRegistration"
                 checked={settings.enableRegistration}
-                onCheckedChange={(checked) => handleChange('enableRegistration', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("enableRegistration", checked)
+                }
               />
               <Label htmlFor="enableRegistration">
-                {language === 'ar' ? 'تمكين التسجيل' : 'Enable Registration'}
+                {language === "ar" ? "تمكين التسجيل" : "Enable Registration"}
               </Label>
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2">
               <Label htmlFor="defaultUserRole">
-                {language === 'ar' ? 'الصلاحية الافتراضية للمستخدمين الجدد' : 'Default User Role'}
+                {language === "ar"
+                  ? "الصلاحية الافتراضية للمستخدمين الجدد"
+                  : "Default User Role"}
               </Label>
               <select
                 id="defaultUserRole"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={settings.defaultUserRole}
-                onChange={(e) => handleChange('defaultUserRole', e.target.value)}
+                onChange={(e) =>
+                  handleChange("defaultUserRole", e.target.value)
+                }
               >
-                <option value="USER">{language === 'ar' ? 'مستخدم' : 'User'}</option>
-                <option value="MODERATOR">{language === 'ar' ? 'مشرف' : 'Moderator'}</option>
-                <option value="ADMIN">{language === 'ar' ? 'مدير' : 'Admin'}</option>
+                <option value="USER">
+                  {language === "ar" ? "مستخدم" : "User"}
+                </option>
+                <option value="MODERATOR">
+                  {language === "ar" ? "مشرف" : "Moderator"}
+                </option>
+                <option value="ADMIN">
+                  {language === "ar" ? "مدير" : "Admin"}
+                </option>
               </select>
             </div>
           </div>
@@ -248,40 +268,48 @@ export default function SettingsPage() {
               <Switch
                 id="enableComments"
                 checked={settings.enableComments}
-                onCheckedChange={(checked) => handleChange('enableComments', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("enableComments", checked)
+                }
               />
               <Label htmlFor="enableComments">
-                {language === 'ar' ? 'تمكين التعليقات' : 'Enable Comments'}
+                {language === "ar" ? "تمكين التعليقات" : "Enable Comments"}
               </Label>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="enableReports"
                 checked={settings.enableReports}
-                onCheckedChange={(checked) => handleChange('enableReports', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("enableReports", checked)
+                }
               />
               <Label htmlFor="enableReports">
-                {language === 'ar' ? 'تمكين البلاغات' : 'Enable Reports'}
+                {language === "ar" ? "تمكين البلاغات" : "Enable Reports"}
               </Label>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="enableNotifications"
                 checked={settings.enableNotifications}
-                onCheckedChange={(checked) => handleChange('enableNotifications', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("enableNotifications", checked)
+                }
               />
               <Label htmlFor="enableNotifications">
-                {language === 'ar' ? 'تمكين الإشعارات' : 'Enable Notifications'}
+                {language === "ar" ? "تمكين الإشعارات" : "Enable Notifications"}
               </Label>
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2">
               <Label htmlFor="maxUploadSize">
-                {language === 'ar' ? 'الحد الأقصى لحجم الملفات (ميجابايت)' : 'Max Upload Size (MB)'}
+                {language === "ar"
+                  ? "الحد الأقصى لحجم الملفات (ميجابايت)"
+                  : "Max Upload Size (MB)"}
               </Label>
               <Input
                 id="maxUploadSize"
@@ -289,7 +317,9 @@ export default function SettingsPage() {
                 min="1"
                 max="100"
                 value={settings.maxUploadSize}
-                onChange={(e) => handleChange('maxUploadSize', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleChange("maxUploadSize", parseInt(e.target.value))
+                }
               />
             </div>
           </div>
@@ -299,24 +329,26 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="termsAndConditions">
-                {language === 'ar' ? 'شروط الاستخدام' : 'Terms and Conditions'}
+                {language === "ar" ? "شروط الاستخدام" : "Terms and Conditions"}
               </Label>
               <Textarea
                 id="termsAndConditions"
                 value={settings.termsAndConditions}
-                onChange={(e) => handleChange('termsAndConditions', e.target.value)}
+                onChange={(e) =>
+                  handleChange("termsAndConditions", e.target.value)
+                }
                 rows={10}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="privacyPolicy">
-                {language === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}
+                {language === "ar" ? "سياسة الخصوصية" : "Privacy Policy"}
               </Label>
               <Textarea
                 id="privacyPolicy"
                 value={settings.privacyPolicy}
-                onChange={(e) => handleChange('privacyPolicy', e.target.value)}
+                onChange={(e) => handleChange("privacyPolicy", e.target.value)}
                 rows={10}
               />
             </div>
@@ -327,11 +359,15 @@ export default function SettingsPage() {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={isSaving}>
           <Save className="mr-2 h-4 w-4" />
-          {isSaving 
-            ? (language === 'ar' ? 'جارِ الحفظ...' : 'Saving...') 
-            : (language === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
+          {isSaving
+            ? language === "ar"
+              ? "جارِ الحفظ..."
+              : "Saving..."
+            : language === "ar"
+              ? "حفظ الإعدادات"
+              : "Save Settings"}
         </Button>
       </div>
     </div>
   );
-} 
+}

@@ -16,4 +16,4 @@ declare module "next-auth" {
       score: number;
     };
   }
-} 
+}

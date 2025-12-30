@@ -5,16 +5,15 @@ export async function GET() {
   try {
     const genres = await prisma.genre.findMany({
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
 
     return NextResponse.json(genres);
   } catch (error) {
     console.error("Error fetching genres:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
-} 
+}

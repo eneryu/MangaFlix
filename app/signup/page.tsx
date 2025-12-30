@@ -27,7 +27,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         variant: "destructive",
@@ -36,7 +36,7 @@ export default function SignUp() {
       });
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
@@ -51,7 +51,7 @@ export default function SignUp() {
         title: "تم إنشاء الحساب بنجاح",
         description: "يرجى تسجيل الدخول للمتابعة",
       });
-      
+
       // تسجيل الدخول تلقائياً
       const result = await signIn("credentials", {
         redirect: false,
@@ -100,7 +100,9 @@ export default function SignUp() {
       {/* Registration Form */}
       <div className="flex-1 flex items-center justify-center relative z-10 px-4 py-10">
         <div className="bg-black/80 p-8 sm:p-12 rounded-md w-full max-w-md text-white backdrop-blur-sm">
-          <h2 className="text-3xl font-bold mb-8 text-white">إنشاء حساب جديد</h2>
+          <h2 className="text-3xl font-bold mb-8 text-white">
+            إنشاء حساب جديد
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-6">
@@ -216,4 +218,4 @@ export default function SignUp() {
       </div>
     </div>
   );
-} 
+}

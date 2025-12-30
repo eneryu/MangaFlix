@@ -1,10 +1,10 @@
-import NextAuth, { AuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import bcrypt from 'bcrypt';
+import NextAuth, { AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import bcrypt from "bcrypt";
 
-import prisma from '@/lib/prisma';
+import prisma from "@/lib/prisma";
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -14,14 +14,14 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     CredentialsProvider({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('بيانات الدخول غير صحيحة');
+          throw new Error("بيانات الدخول غير صحيحة");
         }
 
         const user = await prisma.user.findUnique({
@@ -31,16 +31,16 @@ export const authOptions: AuthOptions = {
         });
 
         if (!user || !user?.password) {
-          throw new Error('البريد الإلكتروني غير موجود');
+          throw new Error("البريد الإلكتروني غير موجود");
         }
 
         const isCorrectPassword = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password,
         );
 
         if (!isCorrectPassword) {
-          throw new Error('كلمة المرور غير صحيحة');
+          throw new Error("كلمة المرور غير صحيحة");
         }
 
         return {
@@ -83,13 +83,13 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST }; 
+export { handler as GET, handler as POST };

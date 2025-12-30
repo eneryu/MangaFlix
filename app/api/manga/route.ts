@@ -9,10 +9,9 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 401 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 401,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -25,31 +24,38 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المستخدم غير موجود" }), {
+        status: 404,
+      });
     }
 
     const body = await request.json();
-    const { 
-      title, 
-      description, 
-      type, 
-      status, 
-      coverImage, 
+    const {
+      title,
+      description,
+      type,
+      status,
+      coverImage,
       bannerImage,
-      genres, 
-      isExplicit, 
+      genres,
+      isExplicit,
       isOriginal,
-      isPublished
+      isPublished,
     } = body;
 
     // التحقق من البيانات المطلوبة
-    if (!title || !description || !type || !status || !coverImage || !genres || genres.length === 0) {
+    if (
+      !title ||
+      !description ||
+      !type ||
+      !status ||
+      !coverImage ||
+      !genres ||
+      genres.length === 0
+    ) {
       return new NextResponse(
         JSON.stringify({ error: "جميع الحقول المطلوبة يجب تعبئتها" }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -68,7 +74,7 @@ export async function POST(request: Request) {
         authorId: user.id,
         genres: {
           connect: genres.map((genreId: string) => ({ id: genreId })),
-        }
+        },
       },
       include: {
         genres: true,
@@ -77,7 +83,7 @@ export async function POST(request: Request) {
             id: true,
             name: true,
             image: true,
-          }
+          },
         },
       },
     });
@@ -89,7 +95,8 @@ export async function POST(request: Request) {
         title: newManga.title,
         coverImage: newManga.coverImage,
         authorName: newManga.author.name || "مؤلف غير معروف",
-        authorImage: newManga.author.image || "/assets/images/default-avatar.png",
+        authorImage:
+          newManga.author.image || "/assets/images/default-avatar.png",
       });
     }
 
@@ -102,8 +109,8 @@ export async function POST(request: Request) {
       data: {
         exp: {
           increment: expPoints,
-        }
-      }
+        },
+      },
     });
 
     // تحقق ما إذا كان المستخدم قد وصل إلى مستوى جديد
@@ -133,17 +140,16 @@ export async function POST(request: Request) {
           maxExp: Math.floor(updatedUser.maxExp * 1.5), // زيادة حد الخبرة المطلوب للمستوى التالي
           score: {
             increment: 50, // نقاط إضافية للمستوى الجديد
-          }
-        }
+          },
+        },
       });
     }
 
     return NextResponse.json(newManga, { status: 201 });
   } catch (error) {
     console.error("Error creating manga:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
-} 
+}

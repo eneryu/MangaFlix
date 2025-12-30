@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import bcrypt from "bcrypt";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -9,8 +9,8 @@ export async function POST(request: Request) {
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { error: 'جميع الحقول مطلوبة' },
-        { status: 400 }
+        { error: "جميع الحقول مطلوبة" },
+        { status: 400 },
       );
     }
 
@@ -21,8 +21,8 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'البريد الإلكتروني مستخدم بالفعل' },
-        { status: 400 }
+        { error: "البريد الإلكتروني مستخدم بالفعل" },
+        { status: 400 },
       );
     }
 
@@ -39,8 +39,8 @@ export async function POST(request: Request) {
         exp: 0,
         maxExp: 100,
         score: 0,
-        subscriptionTier: 'FREE',
-        role: 'USER',
+        subscriptionTier: "FREE",
+        role: "USER",
       },
     });
 
@@ -49,10 +49,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {
-    console.error('Error in register route:', error);
+    console.error("Error in register route:", error);
     return NextResponse.json(
-      { error: 'حدث خطأ أثناء إنشاء الحساب' },
-      { status: 500 }
+      { error: "حدث خطأ أثناء إنشاء الحساب" },
+      { status: 500 },
     );
   }
-} 
+}

@@ -8,10 +8,9 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 401 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 401,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -21,16 +20,16 @@ export async function GET() {
       include: {
         mangas: {
           orderBy: {
-            createdAt: 'desc'
+            createdAt: "desc",
           },
           take: 8,
         },
         libraryEntries: {
           include: {
-            manga: true
+            manga: true,
           },
           orderBy: {
-            updatedAt: 'desc'
+            updatedAt: "desc",
           },
           take: 8,
         },
@@ -39,10 +38,9 @@ export async function GET() {
     });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المستخدم غير موجود" }), {
+        status: 404,
+      });
     }
 
     // نعدل User للسماح بإرسال كائن بدون كلمة المرور
@@ -51,9 +49,8 @@ export async function GET() {
     return NextResponse.json(userWithoutPassword, { status: 200 });
   } catch (error) {
     console.error("Error fetching profile:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
-} 
+}

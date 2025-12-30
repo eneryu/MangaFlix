@@ -32,7 +32,7 @@ export default function NotificationPanel() {
   useEffect(() => {
     if (session?.user?.id) {
       const channel = pusherClient.subscribe(`user-${session.user.id}`);
-      
+
       channel.bind(EVENTS.NEW_NOTIFICATION, (notification: Notification) => {
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
@@ -48,7 +48,9 @@ export default function NotificationPanel() {
     try {
       const { data } = await axios.get("/api/notifications");
       setNotifications(data.notifications);
-      setUnreadCount(data.notifications.filter((n: Notification) => !n.read).length);
+      setUnreadCount(
+        data.notifications.filter((n: Notification) => !n.read).length,
+      );
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
@@ -57,9 +59,9 @@ export default function NotificationPanel() {
   const handleMarkAsRead = async (id: string) => {
     try {
       await axios.put(`/api/notifications/${id}/read`);
-      
+
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
@@ -70,10 +72,8 @@ export default function NotificationPanel() {
   const handleMarkAllAsRead = async () => {
     try {
       await axios.put("/api/notifications/read-all");
-      
-      setNotifications((prev) =>
-        prev.map((n) => ({ ...n, read: true }))
-      );
+
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
@@ -83,11 +83,11 @@ export default function NotificationPanel() {
   // تنسيق التاريخ
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('ar-EG', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("ar-EG", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -138,7 +138,9 @@ export default function NotificationPanel() {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-bold text-sm">{notification.title}</h4>
+                      <h4 className="font-bold text-sm">
+                        {notification.title}
+                      </h4>
                       <p className="text-sm text-muted-foreground mt-1">
                         {notification.message}
                       </p>
@@ -176,11 +178,8 @@ export default function NotificationPanel() {
 
       {/* الخلفية الشفافة لإغلاق اللوحة عند النقر خارجها */}
       {isOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
-        />
+        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
       )}
     </div>
   );
-} 
+}

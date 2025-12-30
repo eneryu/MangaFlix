@@ -7,10 +7,9 @@ interface NextAuthProviderProps {
   session: any;
 }
 
-export default function NextAuthProvider({ children, session }: NextAuthProviderProps) {
-  return (
-    <SessionProvider session={session}>
-      {children}
-    </SessionProvider>
-  );
-} 
+export default function NextAuthProvider({
+  children,
+  session,
+}: NextAuthProviderProps) {
+  return <SessionProvider session={session}>{children}</SessionProvider>;
+}

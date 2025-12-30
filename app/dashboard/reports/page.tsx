@@ -37,15 +37,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  MoreHorizontal, 
-  Search, 
-  CheckCircle, 
-  XCircle, 
+import {
+  MoreHorizontal,
+  Search,
+  CheckCircle,
+  XCircle,
   AlertTriangle,
   ExternalLink,
   Flag,
-  User
+  User,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -59,10 +59,10 @@ interface ReportedUser {
 
 interface Report {
   id: string;
-  reportType: 'MANGA' | 'CHAPTER' | 'COMMENT' | 'USER';
+  reportType: "MANGA" | "CHAPTER" | "COMMENT" | "USER";
   reason: string;
   details: string;
-  status: 'PENDING' | 'RESOLVED' | 'REJECTED';
+  status: "PENDING" | "RESOLVED" | "REJECTED";
   createdAt: string;
   reportedItemId: string;
   reportedItemTitle?: string;
@@ -91,7 +91,8 @@ export default function ReportsPage() {
       id: "1",
       reportType: "MANGA",
       reason: "محتوى غير مناسب",
-      details: "يحتوي هذا المانجا على مشاهد عنيفة بشكل مبالغ فيه ولا يتناسب مع التصنيف العمري.",
+      details:
+        "يحتوي هذا المانجا على مشاهد عنيفة بشكل مبالغ فيه ولا يتناسب مع التصنيف العمري.",
       status: "PENDING",
       createdAt: "2023-10-15T10:00:00Z",
       reportedItemId: "manga-123",
@@ -114,7 +115,8 @@ export default function ReportsPage() {
       id: "3",
       reportType: "USER",
       reason: "سلوك مسيء",
-      details: "هذا المستخدم يقوم بنشر تعليقات مسيئة باستمرار ويتحرش بالمستخدمين الآخرين.",
+      details:
+        "هذا المستخدم يقوم بنشر تعليقات مسيئة باستمرار ويتحرش بالمستخدمين الآخرين.",
       status: "RESOLVED",
       createdAt: "2023-10-20T15:45:00Z",
       reportedItemId: "user-789",
@@ -154,8 +156,11 @@ export default function ReportsPage() {
 
   useEffect(() => {
     // التحقق مما إذا كان المستخدم مشرفًا أو مديرًا
-    if (session?.user && !['ADMIN', 'MODERATOR'].includes(session.user.role as string)) {
-      router.push('/dashboard');
+    if (
+      session?.user &&
+      !["ADMIN", "MODERATOR"].includes(session.user.role as string)
+    ) {
+      router.push("/dashboard");
       return;
     }
 
@@ -178,12 +183,12 @@ export default function ReportsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString(language === "ar" ? "ar-EG" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -196,16 +201,19 @@ export default function ReportsPage() {
     // });
 
     // تحديث الحالة المحلية لتعكس التغييرات
-    setReports(reports.map(report => 
-      report.id === reportId ? { ...report, status: 'RESOLVED' } : report
-    ));
+    setReports(
+      reports.map((report) =>
+        report.id === reportId ? { ...report, status: "RESOLVED" } : report,
+      ),
+    );
 
     toast({
-      title: language === 'ar' ? 'تم حل البلاغ' : 'Report Resolved',
-      description: language === 'ar' 
-        ? 'تم تحديث حالة البلاغ بنجاح'
-        : 'Report status has been updated successfully',
-      variant: 'default',
+      title: language === "ar" ? "تم حل البلاغ" : "Report Resolved",
+      description:
+        language === "ar"
+          ? "تم تحديث حالة البلاغ بنجاح"
+          : "Report status has been updated successfully",
+      variant: "default",
     });
 
     setIsDialogOpen(false);
@@ -221,16 +229,19 @@ export default function ReportsPage() {
     // });
 
     // تحديث الحالة المحلية لتعكس التغييرات
-    setReports(reports.map(report => 
-      report.id === reportId ? { ...report, status: 'REJECTED' } : report
-    ));
+    setReports(
+      reports.map((report) =>
+        report.id === reportId ? { ...report, status: "REJECTED" } : report,
+      ),
+    );
 
     toast({
-      title: language === 'ar' ? 'تم رفض البلاغ' : 'Report Rejected',
-      description: language === 'ar' 
-        ? 'تم تحديث حالة البلاغ بنجاح'
-        : 'Report status has been updated successfully',
-      variant: 'default',
+      title: language === "ar" ? "تم رفض البلاغ" : "Report Rejected",
+      description:
+        language === "ar"
+          ? "تم تحديث حالة البلاغ بنجاح"
+          : "Report status has been updated successfully",
+      variant: "default",
     });
 
     setIsDialogOpen(false);
@@ -242,9 +253,11 @@ export default function ReportsPage() {
     setIsDialogOpen(true);
   };
 
-  const filteredReports = reports.filter(report => {
-    const matchesSearch = 
-      (report.reportedItemTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+  const filteredReports = reports.filter((report) => {
+    const matchesSearch =
+      (report.reportedItemTitle?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase(),
+      ) ||
       report.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.reporterName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter ? report.status === statusFilter : true;
@@ -253,13 +266,18 @@ export default function ReportsPage() {
   });
 
   const getReportTypeLabel = (type: string) => {
-    if (language === 'ar') {
+    if (language === "ar") {
       switch (type) {
-        case 'MANGA': return 'مانجا';
-        case 'CHAPTER': return 'فصل';
-        case 'COMMENT': return 'تعليق';
-        case 'USER': return 'مستخدم';
-        default: return type;
+        case "MANGA":
+          return "مانجا";
+        case "CHAPTER":
+          return "فصل";
+        case "COMMENT":
+          return "تعليق";
+        case "USER":
+          return "مستخدم";
+        default:
+          return type;
       }
     } else {
       return type.charAt(0) + type.slice(1).toLowerCase();
@@ -267,19 +285,27 @@ export default function ReportsPage() {
   };
 
   const getStatusLabel = (status: string) => {
-    if (language === 'ar') {
+    if (language === "ar") {
       switch (status) {
-        case 'PENDING': return 'قيد المراجعة';
-        case 'RESOLVED': return 'تم الحل';
-        case 'REJECTED': return 'مرفوض';
-        default: return status;
+        case "PENDING":
+          return "قيد المراجعة";
+        case "RESOLVED":
+          return "تم الحل";
+        case "REJECTED":
+          return "مرفوض";
+        default:
+          return status;
       }
     } else {
       switch (status) {
-        case 'PENDING': return 'Pending';
-        case 'RESOLVED': return 'Resolved';
-        case 'REJECTED': return 'Rejected';
-        default: return status.charAt(0) + status.slice(1).toLowerCase();
+        case "PENDING":
+          return "Pending";
+        case "RESOLVED":
+          return "Resolved";
+        case "REJECTED":
+          return "Rejected";
+        default:
+          return status.charAt(0) + status.slice(1).toLowerCase();
       }
     }
   };
@@ -288,67 +314,71 @@ export default function ReportsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">
-          {language === 'ar' ? 'إدارة البلاغات' : 'Reports Management'}
+          {language === "ar" ? "إدارة البلاغات" : "Reports Management"}
         </h1>
       </div>
-      
+
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder={language === 'ar' ? 'بحث...' : 'Search...'}
+            placeholder={language === "ar" ? "بحث..." : "Search..."}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <Select
-          value={statusFilter ?? ''}
+          value={statusFilter ?? ""}
           onValueChange={(value) => setStatusFilter(value || null)}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={language === 'ar' ? 'جميع الحالات' : 'All statuses'} />
+            <SelectValue
+              placeholder={language === "ar" ? "جميع الحالات" : "All statuses"}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">
-              {language === 'ar' ? 'جميع الحالات' : 'All statuses'}
+              {language === "ar" ? "جميع الحالات" : "All statuses"}
             </SelectItem>
             <SelectItem value="PENDING">
-              {language === 'ar' ? 'قيد المراجعة' : 'Pending'}
+              {language === "ar" ? "قيد المراجعة" : "Pending"}
             </SelectItem>
             <SelectItem value="RESOLVED">
-              {language === 'ar' ? 'تم الحل' : 'Resolved'}
+              {language === "ar" ? "تم الحل" : "Resolved"}
             </SelectItem>
             <SelectItem value="REJECTED">
-              {language === 'ar' ? 'مرفوض' : 'Rejected'}
+              {language === "ar" ? "مرفوض" : "Rejected"}
             </SelectItem>
           </SelectContent>
         </Select>
 
         <Select
-          value={typeFilter ?? ''}
+          value={typeFilter ?? ""}
           onValueChange={(value) => setTypeFilter(value || null)}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={language === 'ar' ? 'جميع الأنواع' : 'All types'} />
+            <SelectValue
+              placeholder={language === "ar" ? "جميع الأنواع" : "All types"}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">
-              {language === 'ar' ? 'جميع الأنواع' : 'All types'}
+              {language === "ar" ? "جميع الأنواع" : "All types"}
             </SelectItem>
             <SelectItem value="MANGA">
-              {language === 'ar' ? 'مانجا' : 'Manga'}
+              {language === "ar" ? "مانجا" : "Manga"}
             </SelectItem>
             <SelectItem value="CHAPTER">
-              {language === 'ar' ? 'فصل' : 'Chapter'}
+              {language === "ar" ? "فصل" : "Chapter"}
             </SelectItem>
             <SelectItem value="COMMENT">
-              {language === 'ar' ? 'تعليق' : 'Comment'}
+              {language === "ar" ? "تعليق" : "Comment"}
             </SelectItem>
             <SelectItem value="USER">
-              {language === 'ar' ? 'مستخدم' : 'User'}
+              {language === "ar" ? "مستخدم" : "User"}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -358,55 +388,78 @@ export default function ReportsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{language === 'ar' ? 'النوع' : 'Type'}</TableHead>
-              <TableHead>{language === 'ar' ? 'السبب' : 'Reason'}</TableHead>
-              <TableHead>{language === 'ar' ? 'العنصر' : 'Item'}</TableHead>
-              <TableHead>{language === 'ar' ? 'المبلغ' : 'Reporter'}</TableHead>
-              <TableHead>{language === 'ar' ? 'التاريخ' : 'Date'}</TableHead>
-              <TableHead>{language === 'ar' ? 'الحالة' : 'Status'}</TableHead>
-              <TableHead className="text-right">{language === 'ar' ? 'الإجراءات' : 'Actions'}</TableHead>
+              <TableHead>{language === "ar" ? "النوع" : "Type"}</TableHead>
+              <TableHead>{language === "ar" ? "السبب" : "Reason"}</TableHead>
+              <TableHead>{language === "ar" ? "العنصر" : "Item"}</TableHead>
+              <TableHead>{language === "ar" ? "المبلغ" : "Reporter"}</TableHead>
+              <TableHead>{language === "ar" ? "التاريخ" : "Date"}</TableHead>
+              <TableHead>{language === "ar" ? "الحالة" : "Status"}</TableHead>
+              <TableHead className="text-right">
+                {language === "ar" ? "الإجراءات" : "Actions"}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4">
-                  {language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+                  {language === "ar" ? "جاري التحميل..." : "Loading..."}
                 </TableCell>
               </TableRow>
             ) : filteredReports.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4">
-                  {language === 'ar' ? 'لا توجد بلاغات' : 'No reports found'}
+                  {language === "ar" ? "لا توجد بلاغات" : "No reports found"}
                 </TableCell>
               </TableRow>
             ) : (
               filteredReports.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell>
-                    <Badge variant={
-                      report.reportType === 'MANGA' ? 'default' :
-                      report.reportType === 'CHAPTER' ? 'secondary' :
-                      report.reportType === 'COMMENT' ? 'outline' :
-                      'destructive'
-                    }>
+                    <Badge
+                      variant={
+                        report.reportType === "MANGA"
+                          ? "default"
+                          : report.reportType === "CHAPTER"
+                            ? "secondary"
+                            : report.reportType === "COMMENT"
+                              ? "outline"
+                              : "destructive"
+                      }
+                    >
                       {getReportTypeLabel(report.reportType)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="max-w-[200px] truncate" title={report.reason}>
+                  <TableCell
+                    className="max-w-[200px] truncate"
+                    title={report.reason}
+                  >
                     {report.reason}
                   </TableCell>
-                  <TableCell className="max-w-[200px] truncate" title={report.reportedItemTitle || report.reportedUser?.name || report.reportedItemId}>
-                    {report.reportedItemTitle || report.reportedUser?.name || `ID: ${report.reportedItemId.substring(0, 10)}...`}
+                  <TableCell
+                    className="max-w-[200px] truncate"
+                    title={
+                      report.reportedItemTitle ||
+                      report.reportedUser?.name ||
+                      report.reportedItemId
+                    }
+                  >
+                    {report.reportedItemTitle ||
+                      report.reportedUser?.name ||
+                      `ID: ${report.reportedItemId.substring(0, 10)}...`}
                   </TableCell>
                   <TableCell>{report.reporterName}</TableCell>
                   <TableCell>{formatDate(report.createdAt)}</TableCell>
                   <TableCell>
-                    <Badge variant={
-                      report.status === 'PENDING' ? 'outline' :
-                      report.status === 'RESOLVED' ? 'success' :
-                      'destructive'
-                    }>
+                    <Badge
+                      variant={
+                        report.status === "PENDING"
+                          ? "outline"
+                          : report.status === "RESOLVED"
+                            ? "success"
+                            : "destructive"
+                      }
+                    >
                       {getStatusLabel(report.status)}
                     </Badge>
                   </TableCell>
@@ -415,57 +468,78 @@ export default function ReportsPage() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
                           <span className="sr-only">
-                            {language === 'ar' ? 'فتح القائمة' : 'Open menu'}
+                            {language === "ar" ? "فتح القائمة" : "Open menu"}
                           </span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>
-                          {language === 'ar' ? 'الإجراءات' : 'Actions'}
+                          {language === "ar" ? "الإجراءات" : "Actions"}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => viewDetails(report)}>
                           <AlertTriangle className="mr-2 h-4 w-4" />
-                          {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+                          {language === "ar" ? "عرض التفاصيل" : "View Details"}
                         </DropdownMenuItem>
-                        
-                        {report.status === 'PENDING' && (
+
+                        {report.status === "PENDING" && (
                           <>
-                            {report.reportType === 'USER' && (
-                              <DropdownMenuItem onClick={() => router.push(`/profile/${report.reportedItemId}`)}>
+                            {report.reportType === "USER" && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(
+                                    `/profile/${report.reportedItemId}`,
+                                  )
+                                }
+                              >
                                 <User className="mr-2 h-4 w-4" />
-                                {language === 'ar' ? 'عرض ملف المستخدم' : 'View User Profile'}
+                                {language === "ar"
+                                  ? "عرض ملف المستخدم"
+                                  : "View User Profile"}
                               </DropdownMenuItem>
                             )}
-                            
-                            {(report.reportType === 'MANGA' || report.reportType === 'CHAPTER') && (
-                              <DropdownMenuItem onClick={() => router.push(`/${report.reportType.toLowerCase()}/${report.reportedItemId}`)}>
+
+                            {(report.reportType === "MANGA" ||
+                              report.reportType === "CHAPTER") && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(
+                                    `/${report.reportType.toLowerCase()}/${report.reportedItemId}`,
+                                  )
+                                }
+                              >
                                 <ExternalLink className="mr-2 h-4 w-4" />
-                                {language === 'ar' ? 'عرض المحتوى' : 'View Content'}
+                                {language === "ar"
+                                  ? "عرض المحتوى"
+                                  : "View Content"}
                               </DropdownMenuItem>
                             )}
-                            
+
                             <DropdownMenuSeparator />
-                            
-                            <DropdownMenuItem 
+
+                            <DropdownMenuItem
                               onClick={() => {
                                 setSelectedReport(report);
                                 setIsDialogOpen(true);
                               }}
                             >
                               <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                              {language === 'ar' ? 'تأكيد البلاغ' : 'Resolve Report'}
+                              {language === "ar"
+                                ? "تأكيد البلاغ"
+                                : "Resolve Report"}
                             </DropdownMenuItem>
-                            
-                            <DropdownMenuItem 
+
+                            <DropdownMenuItem
                               onClick={() => {
                                 setSelectedReport(report);
                                 setIsDialogOpen(true);
                               }}
                             >
                               <XCircle className="mr-2 h-4 w-4 text-red-500" />
-                              {language === 'ar' ? 'رفض البلاغ' : 'Reject Report'}
+                              {language === "ar"
+                                ? "رفض البلاغ"
+                                : "Reject Report"}
                             </DropdownMenuItem>
                           </>
                         )}
@@ -483,67 +557,76 @@ export default function ReportsPage() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              {language === 'ar' ? 'تفاصيل البلاغ' : 'Report Details'}
+              {language === "ar" ? "تفاصيل البلاغ" : "Report Details"}
             </DialogTitle>
             <DialogDescription>
-              {language === 'ar' 
-                ? `بلاغ عن ${selectedReport?.reportType === 'MANGA' ? 'مانجا' 
-                    : selectedReport?.reportType === 'CHAPTER' ? 'فصل' 
-                    : selectedReport?.reportType === 'COMMENT' ? 'تعليق' 
-                    : 'مستخدم'}`
+              {language === "ar"
+                ? `بلاغ عن ${
+                    selectedReport?.reportType === "MANGA"
+                      ? "مانجا"
+                      : selectedReport?.reportType === "CHAPTER"
+                        ? "فصل"
+                        : selectedReport?.reportType === "COMMENT"
+                          ? "تعليق"
+                          : "مستخدم"
+                  }`
                 : `Report about ${selectedReport?.reportType?.toLowerCase()}`}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedReport && (
             <div className="space-y-4 py-4">
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">
-                  {language === 'ar' ? 'النوع:' : 'Type:'}
+                  {language === "ar" ? "النوع:" : "Type:"}
                 </h4>
                 <p className="text-sm">
                   {getReportTypeLabel(selectedReport.reportType)}
                 </p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">
-                  {language === 'ar' ? 'السبب:' : 'Reason:'}
+                  {language === "ar" ? "السبب:" : "Reason:"}
                 </h4>
                 <p className="text-sm">{selectedReport.reason}</p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">
-                  {language === 'ar' ? 'التفاصيل:' : 'Details:'}
+                  {language === "ar" ? "التفاصيل:" : "Details:"}
                 </h4>
-                <p className="text-sm whitespace-pre-wrap">{selectedReport.details}</p>
+                <p className="text-sm whitespace-pre-wrap">
+                  {selectedReport.details}
+                </p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">
-                  {language === 'ar' ? 'تم الإبلاغ بواسطة:' : 'Reported by:'}
+                  {language === "ar" ? "تم الإبلاغ بواسطة:" : "Reported by:"}
                 </h4>
                 <p className="text-sm">{selectedReport.reporterName}</p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">
-                  {language === 'ar' ? 'تاريخ الإبلاغ:' : 'Report date:'}
+                  {language === "ar" ? "تاريخ الإبلاغ:" : "Report date:"}
                 </h4>
-                <p className="text-sm">{formatDate(selectedReport.createdAt)}</p>
+                <p className="text-sm">
+                  {formatDate(selectedReport.createdAt)}
+                </p>
               </div>
-              
-              {selectedReport.status === 'PENDING' && (
+
+              {selectedReport.status === "PENDING" && (
                 <div className="space-y-1">
                   <h4 className="text-sm font-medium">
-                    {language === 'ar' ? 'ملاحظات الإجراء:' : 'Action notes:'}
+                    {language === "ar" ? "ملاحظات الإجراء:" : "Action notes:"}
                   </h4>
                   <Textarea
                     placeholder={
-                      language === 'ar' 
-                        ? 'أضف ملاحظات حول الإجراء المتخذ (اختياري)' 
-                        : 'Add notes about the action taken (optional)'
+                      language === "ar"
+                        ? "أضف ملاحظات حول الإجراء المتخذ (اختياري)"
+                        : "Add notes about the action taken (optional)"
                     }
                     value={actionNote}
                     onChange={(e) => setActionNote(e.target.value)}
@@ -553,22 +636,20 @@ export default function ReportsPage() {
               )}
             </div>
           )}
-          
-          {selectedReport?.status === 'PENDING' && (
+
+          {selectedReport?.status === "PENDING" && (
             <DialogFooter>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => handleRejectReport(selectedReport.id)}
                 className="mr-2"
               >
                 <XCircle className="mr-2 h-4 w-4" />
-                {language === 'ar' ? 'رفض البلاغ' : 'Reject Report'}
+                {language === "ar" ? "رفض البلاغ" : "Reject Report"}
               </Button>
-              <Button 
-                onClick={() => handleResolveReport(selectedReport.id)}
-              >
+              <Button onClick={() => handleResolveReport(selectedReport.id)}>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                {language === 'ar' ? 'تأكيد البلاغ' : 'Resolve Report'}
+                {language === "ar" ? "تأكيد البلاغ" : "Resolve Report"}
               </Button>
             </DialogFooter>
           )}
@@ -576,4 +657,4 @@ export default function ReportsPage() {
       </Dialog>
     </div>
   );
-} 
+}

@@ -8,15 +8,15 @@ import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -27,16 +27,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { 
-  Upload, 
-  ChevronLeft, 
+import {
+  Upload,
+  ChevronLeft,
   ChevronRight,
   Plus,
   X,
   Tag,
   Info,
   Book,
-  Star 
+  Star,
 } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -52,7 +52,7 @@ export default function UploadMangaPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [genres, setGenres] = useState<Genre[]>([]);
-  
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -85,43 +85,48 @@ export default function UploadMangaPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: checked }));
+    setFormData((prev) => ({ ...prev, [name]: checked }));
   };
 
   const handleGenreChange = (genreId: string) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       if (prev.genres.includes(genreId)) {
         return {
           ...prev,
-          genres: prev.genres.filter(id => id !== genreId)
+          genres: prev.genres.filter((id) => id !== genreId),
         };
       } else {
         return {
           ...prev,
-          genres: [...prev.genres, genreId]
+          genres: [...prev.genres, genreId],
         };
       }
     });
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'coverImage' | 'bannerImage') => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "coverImage" | "bannerImage",
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // هنا يمكنك تنفيذ رفع الملف إلى خادم الصور الخاص بك
     // في هذا المثال، سنفترض أننا نضيف عنوان URL وهمي
-    
+
     // في التطبيق الفعلي، ستقوم برفع الصورة إلى خدمة مثل Cloudinary أو AWS S3
     // const formData = new FormData();
     // formData.append('file', file);
@@ -130,25 +135,25 @@ export default function UploadMangaPage() {
 
     // لأغراض العرض التوضيحي، سنستخدم فقط نص بديل
     const dummyUrl = `https://example.com/images/${type}-${Date.now()}.jpg`;
-    setFormData(prev => ({ ...prev, [type]: dummyUrl }));
+    setFormData((prev) => ({ ...prev, [type]: dummyUrl }));
     toast.success("تم رفع الصورة بنجاح (هذه رسالة تجريبية فقط)");
   };
 
   const handleSubmit = async (publish: boolean) => {
     setIsLoading(true);
-    
+
     try {
       // إعداد بيانات الإرسال
       const submitData = {
         ...formData,
         isPublished: publish,
       };
-      
+
       // إرسال البيانات إلى الخادم
       const { data } = await axios.post("/api/manga", submitData);
-      
+
       toast.success(publish ? "تم نشر المانجا بنجاح" : "تم حفظ المانجا كمسودة");
-      
+
       // التوجيه إلى صفحة المانجا
       router.push(`/manga/${data.id}`);
     } catch (error) {
@@ -160,11 +165,11 @@ export default function UploadMangaPage() {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 3));
+    setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   if (status === "loading") {
@@ -189,24 +194,36 @@ export default function UploadMangaPage() {
       <main className="flex-1 pt-24 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">إضافة مانجا جديدة</h1>
-          
+
           <div className="mb-8 flex items-center justify-between">
             <div className="flex gap-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
                 1
               </div>
-              <div className={`w-16 h-2 ${currentStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <div
+                className={`w-16 h-2 ${currentStep >= 2 ? "bg-primary" : "bg-muted"}`}
+              />
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
                 2
               </div>
-              <div className={`w-16 h-2 ${currentStep >= 3 ? 'bg-primary' : 'bg-muted'}`} />
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <div
+                className={`w-16 h-2 ${currentStep >= 3 ? "bg-primary" : "bg-muted"}`}
+              />
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
                 3
               </div>
             </div>
-            
+
             <div>
-              <span className="text-sm text-muted-foreground">الخطوة {currentStep} من 3</span>
+              <span className="text-sm text-muted-foreground">
+                الخطوة {currentStep} من 3
+              </span>
             </div>
           </div>
 
@@ -214,9 +231,12 @@ export default function UploadMangaPage() {
             {currentStep === 1 && (
               <div>
                 <h2 className="text-xl font-semibold mb-6">معلومات أساسية</h2>
-                
+
                 <div className="mb-4">
-                  <label htmlFor="title" className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium mb-1"
+                  >
                     العنوان <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -228,9 +248,12 @@ export default function UploadMangaPage() {
                     required
                   />
                 </div>
-                
+
                 <div className="mb-4">
-                  <label htmlFor="description" className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium mb-1"
+                  >
                     الوصف <span className="text-red-500">*</span>
                   </label>
                   <Textarea
@@ -243,15 +266,20 @@ export default function UploadMangaPage() {
                     required
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label htmlFor="type" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="type"
+                      className="block text-sm font-medium mb-1"
+                    >
                       النوع <span className="text-red-500">*</span>
                     </label>
                     <Select
                       value={formData.type}
-                      onValueChange={(value) => handleSelectChange('type', value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("type", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="اختر النوع" />
@@ -262,14 +290,19 @@ export default function UploadMangaPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
-                    <label htmlFor="status" className="block text-sm font-medium mb-1">
+                    <label
+                      htmlFor="status"
+                      className="block text-sm font-medium mb-1"
+                    >
                       الحالة <span className="text-red-500">*</span>
                     </label>
                     <Select
                       value={formData.status}
-                      onValueChange={(value) => handleSelectChange('status', value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("status", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="اختر الحالة" />
@@ -283,7 +316,7 @@ export default function UploadMangaPage() {
                     </Select>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center">
                     <input
@@ -298,7 +331,7 @@ export default function UploadMangaPage() {
                       عمل أصلي
                     </label>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <input
                       id="isExplicit"
@@ -315,11 +348,11 @@ export default function UploadMangaPage() {
                 </div>
               </div>
             )}
-            
+
             {currentStep === 2 && (
               <div>
                 <h2 className="text-xl font-semibold mb-6">الصور والتصنيفات</h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -327,11 +360,13 @@ export default function UploadMangaPage() {
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-2">اسحب الصورة هنا أو انقر للاختيار</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        اسحب الصورة هنا أو انقر للاختيار
+                      </p>
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => handleFileUpload(e, 'coverImage')}
+                        onChange={(e) => handleFileUpload(e, "coverImage")}
                         className="hidden"
                         id="cover-upload"
                       />
@@ -343,18 +378,20 @@ export default function UploadMangaPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       صورة البانر (اختياري)
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                       <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-2">صورة خلفية لصفحة التفاصيل</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        صورة خلفية لصفحة التفاصيل
+                      </p>
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => handleFileUpload(e, 'bannerImage')}
+                        onChange={(e) => handleFileUpload(e, "bannerImage")}
                         className="hidden"
                         id="banner-upload"
                       />
@@ -367,17 +404,18 @@ export default function UploadMangaPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    الأنواع (اختر على الأقل واحد) <span className="text-red-500">*</span>
+                    الأنواع (اختر على الأقل واحد){" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {formData.genres.map(genreId => {
-                      const genre = genres.find(g => g.id === genreId);
+                    {formData.genres.map((genreId) => {
+                      const genre = genres.find((g) => g.id === genreId);
                       return genre ? (
-                        <div 
-                          key={genre.id} 
+                        <div
+                          key={genre.id}
                           className="bg-primary/10 text-primary px-3 py-1 rounded-full flex items-center gap-1"
                         >
                           <span className="text-sm">{genre.name}</span>
@@ -393,7 +431,7 @@ export default function UploadMangaPage() {
                     })}
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
-                    {genres.map(genre => (
+                    {genres.map((genre) => (
                       <div key={genre.id} className="flex items-center">
                         <input
                           type="checkbox"
@@ -402,7 +440,10 @@ export default function UploadMangaPage() {
                           onChange={() => handleGenreChange(genre.id)}
                           className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                         />
-                        <label htmlFor={`genre-${genre.id}`} className="mr-2 text-sm">
+                        <label
+                          htmlFor={`genre-${genre.id}`}
+                          className="mr-2 text-sm"
+                        >
                           {genre.name}
                         </label>
                       </div>
@@ -411,11 +452,11 @@ export default function UploadMangaPage() {
                 </div>
               </div>
             )}
-            
+
             {currentStep === 3 && (
               <div>
                 <h2 className="text-xl font-semibold mb-6">مراجعة ونشر</h2>
-                
+
                 <div className="bg-card border rounded-lg p-4 mb-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -423,28 +464,45 @@ export default function UploadMangaPage() {
                         <Info size={16} /> معلومات أساسية
                       </h3>
                       <ul className="text-sm space-y-2">
-                        <li><span className="font-medium">العنوان:</span> {formData.title}</li>
-                        <li><span className="font-medium">النوع:</span> {formData.type === 'MANGA' ? 'مانجا' : 'رواية'}</li>
-                        <li><span className="font-medium">الحالة:</span> {
-                          formData.status === 'ONGOING' ? 'مستمر' :
-                          formData.status === 'COMPLETED' ? 'مكتمل' :
-                          formData.status === 'HIATUS' ? 'متوقف مؤقتًا' : 'ملغي'
-                        }</li>
-                        <li><span className="font-medium">عمل أصلي:</span> {formData.isOriginal ? 'نعم' : 'لا'}</li>
-                        <li><span className="font-medium">محتوى للكبار:</span> {formData.isExplicit ? 'نعم' : 'لا'}</li>
+                        <li>
+                          <span className="font-medium">العنوان:</span>{" "}
+                          {formData.title}
+                        </li>
+                        <li>
+                          <span className="font-medium">النوع:</span>{" "}
+                          {formData.type === "MANGA" ? "مانجا" : "رواية"}
+                        </li>
+                        <li>
+                          <span className="font-medium">الحالة:</span>{" "}
+                          {formData.status === "ONGOING"
+                            ? "مستمر"
+                            : formData.status === "COMPLETED"
+                              ? "مكتمل"
+                              : formData.status === "HIATUS"
+                                ? "متوقف مؤقتًا"
+                                : "ملغي"}
+                        </li>
+                        <li>
+                          <span className="font-medium">عمل أصلي:</span>{" "}
+                          {formData.isOriginal ? "نعم" : "لا"}
+                        </li>
+                        <li>
+                          <span className="font-medium">محتوى للكبار:</span>{" "}
+                          {formData.isExplicit ? "نعم" : "لا"}
+                        </li>
                       </ul>
                     </div>
-                    
+
                     <div>
                       <h3 className="font-medium flex items-center gap-2 mb-2">
                         <Tag size={16} /> التصنيفات
                       </h3>
                       <div className="flex flex-wrap gap-1">
-                        {formData.genres.map(genreId => {
-                          const genre = genres.find(g => g.id === genreId);
+                        {formData.genres.map((genreId) => {
+                          const genre = genres.find((g) => g.id === genreId);
                           return genre ? (
-                            <span 
-                              key={genre.id} 
+                            <span
+                              key={genre.id}
                               className="bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full text-xs"
                             >
                               {genre.name}
@@ -459,36 +517,42 @@ export default function UploadMangaPage() {
                     <h3 className="font-medium flex items-center gap-2 mb-2">
                       <Book size={16} /> الوصف
                     </h3>
-                    <p className="text-sm whitespace-pre-line">{formData.description}</p>
+                    <p className="text-sm whitespace-pre-line">
+                      {formData.description}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-2">قم بنشر المانجا أو احفظها كمسودة</h3>
+                  <h3 className="font-medium mb-2">
+                    قم بنشر المانجا أو احفظها كمسودة
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    يمكنك نشر المانجا الآن لتكون متاحة للجميع، أو حفظها كمسودة للتعديل عليها لاحقًا.
+                    يمكنك نشر المانجا الآن لتكون متاحة للجميع، أو حفظها كمسودة
+                    للتعديل عليها لاحقًا.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => handleSubmit(false)}
                       disabled={isLoading}
                     >
                       حفظ كمسودة
                     </Button>
-                    
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button disabled={isLoading}>
-                          نشر المانجا
-                        </Button>
+                        <Button disabled={isLoading}>نشر المانجا</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>هل أنت متأكد من نشر المانجا؟</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            هل أنت متأكد من نشر المانجا؟
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
-                            بمجرد النشر، ستكون المانجا متاحة لجميع المستخدمين. تأكد من مراجعة جميع المعلومات.
+                            بمجرد النشر، ستكون المانجا متاحة لجميع المستخدمين.
+                            تأكد من مراجعة جميع المعلومات.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -512,7 +576,7 @@ export default function UploadMangaPage() {
               >
                 <ChevronRight className="ml-2 h-4 w-4" /> السابق
               </Button>
-              
+
               {currentStep < 3 ? (
                 <Button onClick={nextStep}>
                   التالي <ChevronLeft className="mr-2 h-4 w-4" />
@@ -526,4 +590,4 @@ export default function UploadMangaPage() {
       <Footer />
     </div>
   );
-} 
+}

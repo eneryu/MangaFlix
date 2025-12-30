@@ -21,13 +21,13 @@ export function LanguageToggle() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => setLanguage("ar")}
           className={language === "ar" ? "bg-secondary/50" : ""}
         >
           العربية
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => setLanguage("en")}
           className={language === "en" ? "bg-secondary/50" : ""}
         >
@@ -36,4 +36,4 @@ export function LanguageToggle() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-} 
+}

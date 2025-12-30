@@ -8,10 +8,9 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 401 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 401,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -24,10 +23,9 @@ export async function GET() {
     });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المستخدم غير موجود" }), {
+        status: 404,
+      });
     }
 
     const libraryEntries = await prisma.libraryEntry.findMany({
@@ -35,7 +33,7 @@ export async function GET() {
         userId: user.id,
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
       include: {
         manga: {
@@ -49,7 +47,7 @@ export async function GET() {
             author: {
               select: {
                 name: true,
-              }
+              },
             },
             chapters: {
               select: {
@@ -57,7 +55,7 @@ export async function GET() {
                 number: true,
               },
               orderBy: {
-                number: 'asc',
+                number: "asc",
               },
             },
           },
@@ -68,10 +66,9 @@ export async function GET() {
     return NextResponse.json(libraryEntries, { status: 200 });
   } catch (error) {
     console.error("Error fetching library:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
 }
 
@@ -80,10 +77,9 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 401 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 401,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -96,10 +92,9 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المستخدم غير موجود" }), {
+        status: 404,
+      });
     }
 
     const body = await request.json();
@@ -108,7 +103,7 @@ export async function POST(request: Request) {
     if (!mangaId) {
       return new NextResponse(
         JSON.stringify({ error: "معرّف المانجا مطلوب" }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -129,7 +124,8 @@ export async function POST(request: Request) {
         data: {
           status: status || existingEntry.status,
           currentChapter: currentChapter || existingEntry.currentChapter,
-          isFavorite: isFavorite !== undefined ? isFavorite : existingEntry.isFavorite,
+          isFavorite:
+            isFavorite !== undefined ? isFavorite : existingEntry.isFavorite,
         },
         include: {
           manga: {
@@ -150,7 +146,7 @@ export async function POST(request: Request) {
         data: {
           userId: user.id,
           mangaId,
-          status: status || 'PLAN_TO_READ',
+          status: status || "PLAN_TO_READ",
           currentChapter: currentChapter || 0,
           isFavorite: isFavorite || false,
         },
@@ -170,10 +166,9 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error("Error managing library entry:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
 }
 
@@ -182,10 +177,9 @@ export async function DELETE(request: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 401 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 401,
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -198,20 +192,18 @@ export async function DELETE(request: Request) {
     });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ error: "المستخدم غير موجود" }), {
+        status: 404,
+      });
     }
 
     const { searchParams } = new URL(request.url);
-    const entryId = searchParams.get('id');
+    const entryId = searchParams.get("id");
 
     if (!entryId) {
-      return new NextResponse(
-        JSON.stringify({ error: "معرّف المدخل مطلوب" }),
-        { status: 400 }
-      );
+      return new NextResponse(JSON.stringify({ error: "معرّف المدخل مطلوب" }), {
+        status: 400,
+      });
     }
 
     // تحقق من أن المدخل ينتمي إلى المستخدم
@@ -227,15 +219,14 @@ export async function DELETE(request: Request) {
     if (!entry) {
       return new NextResponse(
         JSON.stringify({ error: "مدخل المكتبة غير موجود" }),
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (entry.userId !== user.id) {
-      return new NextResponse(
-        JSON.stringify({ error: "غير مسموح" }),
-        { status: 403 }
-      );
+      return new NextResponse(JSON.stringify({ error: "غير مسموح" }), {
+        status: 403,
+      });
     }
 
     // حذف المدخل
@@ -247,13 +238,12 @@ export async function DELETE(request: Request) {
 
     return new NextResponse(
       JSON.stringify({ message: "تم حذف مدخل المكتبة بنجاح" }),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error deleting library entry:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "حدث خطأ في الخادم" }),
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "حدث خطأ في الخادم" }), {
+      status: 500,
+    });
   }
-} 
+}

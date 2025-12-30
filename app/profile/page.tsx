@@ -8,7 +8,15 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Book, PenTool, Award, Medal, User, Settings, LogOut } from "lucide-react";
+import {
+  Book,
+  PenTool,
+  Award,
+  Medal,
+  User,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import axios from "axios";
 import { signOut } from "next-auth/react";
 import { toast } from "react-hot-toast";
@@ -112,8 +120,10 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <h1 className="text-2xl font-bold text-center mb-2">{profile.name}</h1>
-                
+                <h1 className="text-2xl font-bold text-center mb-2">
+                  {profile.name}
+                </h1>
+
                 <div className="flex items-center justify-center mb-4 gap-4">
                   <div className="flex items-center gap-1">
                     <Medal className="text-yellow-500 h-5 w-5" />
@@ -121,7 +131,9 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Book className="text-blue-500 h-5 w-5" />
-                    <span className="font-medium">{profile.libraryEntries.length}</span>
+                    <span className="font-medium">
+                      {profile.libraryEntries.length}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <PenTool className="text-green-500 h-5 w-5" />
@@ -153,7 +165,7 @@ export default function ProfilePage() {
                     <Settings size={18} />
                     <span>الإعدادات</span>
                   </button>
-                  <button 
+                  <button
                     onClick={handleSignOut}
                     className="w-full flex items-center gap-2 py-2 px-4 rounded-md hover:bg-secondary/50 transition-colors"
                   >
@@ -171,7 +183,7 @@ export default function ProfilePage() {
                   <TabsTrigger value="mangaCreated">منشوراتي</TabsTrigger>
                   <TabsTrigger value="achievements">الإنجازات</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="library" className="bg-card rounded-lg p-6">
                   <h2 className="text-xl font-bold mb-6">مكتبتي</h2>
                   {profile.libraryEntries.length === 0 ? (
@@ -185,8 +197,11 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </TabsContent>
-                
-                <TabsContent value="mangaCreated" className="bg-card rounded-lg p-6">
+
+                <TabsContent
+                  value="mangaCreated"
+                  className="bg-card rounded-lg p-6"
+                >
                   <h2 className="text-xl font-bold mb-6">منشوراتي</h2>
                   {profile.mangas.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
@@ -199,8 +214,11 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </TabsContent>
-                
-                <TabsContent value="achievements" className="bg-card rounded-lg p-6">
+
+                <TabsContent
+                  value="achievements"
+                  className="bg-card rounded-lg p-6"
+                >
                   <h2 className="text-xl font-bold mb-6">الإنجازات</h2>
                   {profile.achievements.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
@@ -222,4 +240,4 @@ export default function ProfilePage() {
       <Footer />
     </div>
   );
-} 
+}
