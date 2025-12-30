@@ -5,32 +5,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  List,
-  Settings,
   ArrowLeft,
-  ZoomIn,
-  ZoomOut,
   Maximize,
-  Minimize,
+  Settings,
   SkipBack,
   SkipForward,
   X,
   Globe,
   BookOpen,
-  Layers,
+  ZoomIn,
+  ZoomOut,
   Monitor,
   Book,
   Scroll,
+  FileText,
 } from "lucide-react";
 import {
   getChapterPages,
   getPageUrl,
   getMangaChapters,
+  getMangaDetails,
   type ChapterPages,
   type Chapter,
+  type Manga,
 } from "@/lib/manga-api";
 
 interface ChapterPageProps {
@@ -53,12 +50,27 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
   const [showSettings, setShowSettings] = React.useState(false);
   const [zoom, setZoom] = React.useState(100);
   const [cinemaMode, setCinemaMode] = React.useState(false);
+  const [mangaDetails, setMangaDetails] = React.useState<Manga | null>(null);
+  const [availableLanguages, setAvailableLanguages] = React.useState<string[]>([]);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
+  // Load manga details to get available languages
+  React.useEffect(() => {
+    getMangaDetails(id).then((manga) => {
+      if (manga) {
+        setMangaDetails(manga);
+        setAvailableLanguages(manga.availableLanguages || ["en"]);
+      }
+    });
+  }, [id]);
+
   React.useEffect(() => {
     setLoading(true);
-    const selectedLangs = language === "all" ? ["en", "ar", "ja"] : [language];
+    const selectedLangs = language === "all"
+      ? availableLanguages
+      : [language];
+
     Promise.all([
       getChapterPages(chapterId),
       getMangaChapters(id, selectedLangs),
@@ -70,7 +82,7 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
       setCurrentPage(0);
       setLoading(false);
     });
-  }, [id, chapterId, language]);
+  }, [id, chapterId, language, availableLanguages]);
 
   const currentChapter = allChapters[currentChapterIndex];
   const prevChapter = allChapters[currentChapterIndex - 1];
@@ -149,6 +161,21 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
       </div>
     );
   }
+
+  // Language display names
+  const languageNames: Record<string, { name: string; flag: string }> = {
+    en: { name: "English", flag: "🇬🇧" },
+    ar: { name: "العربية", flag: "🇸🇦" },
+    ja: { name: "日本語", flag: "🇯🇵" },
+    es: { name: "Español", flag: "🇪🇸" },
+    fr: { name: "Français", flag: "🇫🇷" },
+    de: { name: "Deutsch", flag: "🇩🇪" },
+    pt: { name: "Português", flag: "🇵🇹" },
+    it: { name: "Italiano", flag: "🇮🇹" },
+    ru: { name: "Русский", flag: "🇷🇺" },
+    zh: { name: "中文", flag: "🇨🇳" },
+    ko: { name: "한국어", flag: "🇰🇷" },
+  };
 
   return (
     <div className="reader-container" ref={containerRef} style={{ background: cinemaMode ? "#0a0a0a" : "#000" }}>
@@ -247,7 +274,7 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
         </nav>
       )}
 
-      {/* Settings Panel */}
+      {/* Settings Panel - Redesigned with Grid */}
       {showSettings && !cinemaMode && (
         <div
           style={{
@@ -255,191 +282,258 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
             top: "80px",
             right: "40px",
             zIndex: 101,
-            background: "rgba(0, 0, 0, 0.98)",
-            backdropFilter: "blur(20px)",
+            background: "rgba(6, 7, 10, 0.98)",
+            backdropFilter: "blur(30px)",
             border: "1px solid rgba(0, 255, 170, 0.2)",
-            borderRadius: "20px",
-            padding: "28px",
-            minWidth: "340px",
+            borderRadius: "24px",
+            padding: "32px",
+            width: "420px",
+            maxHeight: "calc(100vh - 120px)",
+            overflowY: "auto",
             boxShadow: "0 30px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 255, 170, 0.1)",
           }}
         >
+          {/* Header */}
           <div style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "24px"
+            marginBottom: "32px",
+            paddingBottom: "16px",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.1)"
           }}>
-            <h3 style={{
-              fontSize: "20px",
-              fontWeight: 900,
-              color: "#fff",
-              letterSpacing: "-0.5px"
-            }}>
-              ⚙️ SETTINGS
-            </h3>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <Settings size={24} style={{ color: "var(--accent-primary)" }} />
+              <h3 style={{
+                fontSize: "22px",
+                fontWeight: 900,
+                color: "#fff",
+                letterSpacing: "-0.5px"
+              }}>
+                Reader Settings
+              </h3>
+            </div>
             <button
               onClick={() => setShowSettings(false)}
               style={{
                 background: "rgba(255, 255, 255, 0.05)",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 color: "#fff",
                 cursor: "pointer",
-                padding: "6px",
+                padding: "8px",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
+                transition: "all 0.2s"
               }}
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
 
           {/* Language Selection */}
-          <div style={{ marginBottom: "24px" }}>
+          <div style={{ marginBottom: "28px" }}>
             <label style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
               fontSize: "13px",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "var(--text-dim)",
-              marginBottom: "12px",
-              letterSpacing: "1px"
+              marginBottom: "16px",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase"
             }}>
               <Globe size={16} />
-              TRANSLATION
+              Translation
             </label>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {[
-                { value: "en", label: "🇬🇧 English", icon: "🌍" },
-                { value: "ar", label: "🇸🇦 Arabic", icon: "📖" },
-                { value: "ja", label: "🇯🇵 Japanese", icon: "㊗️" },
-                { value: "all", label: "🌐 All Languages", icon: "🗺️" },
-              ].map((lang) => (
-                <button
-                  key={lang.value}
-                  onClick={() => setLanguage(lang.value)}
-                  style={{
-                    padding: "12px 16px",
-                    background: language === lang.value
-                      ? "rgba(0, 255, 170, 0.15)"
-                      : "rgba(255, 255, 255, 0.05)",
-                    border: `1px solid ${language === lang.value ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.1)"}`,
-                    borderRadius: "10px",
-                    color: language === lang.value ? "var(--accent-primary)" : "#fff",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    textAlign: "left",
-                    transition: "all 0.2s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
-                >
-                  <span style={{ fontSize: "18px" }}>{lang.icon}</span>
-                  {lang.label}
-                </button>
-              ))}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "10px"
+            }}>
+              {availableLanguages.map((lang) => {
+                const langInfo = languageNames[lang] || { name: lang.toUpperCase(), flag: "🌐" };
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => setLanguage(lang)}
+                    style={{
+                      padding: "14px 16px",
+                      background: language === lang
+                        ? "linear-gradient(135deg, rgba(0, 255, 170, 0.15), rgba(0, 184, 255, 0.15))"
+                        : "rgba(255, 255, 255, 0.03)",
+                      border: `1.5px solid ${language === lang ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.08)"}`,
+                      borderRadius: "12px",
+                      color: language === lang ? "#fff" : "var(--text-dim)",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px"
+                    }}
+                  >
+                    <span style={{ fontSize: "20px" }}>{langInfo.flag}</span>
+                    <span>{langInfo.name}</span>
+                  </button>
+                );
+              })}
+              {/* All Languages Option */}
+              <button
+                onClick={() => setLanguage("all")}
+                style={{
+                  padding: "14px 16px",
+                  background: language === "all"
+                    ? "linear-gradient(135deg, rgba(0, 255, 170, 0.15), rgba(0, 184, 255, 0.15))"
+                    : "rgba(255, 255, 255, 0.03)",
+                  border: `1.5px solid ${language === "all" ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.08)"}`,
+                  borderRadius: "12px",
+                  color: language === "all" ? "#fff" : "var(--text-dim)",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  textAlign: "left",
+                  transition: "all 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  gridColumn: availableLanguages.length % 2 === 0 ? "span 2" : "auto"
+                }}
+              >
+                <Globe size={20} />
+                <span>All Available</span>
+              </button>
             </div>
           </div>
 
           {/* Read Mode */}
-          <div style={{ marginBottom: "24px" }}>
+          <div style={{ marginBottom: "28px" }}>
             <label style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
               fontSize: "13px",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "var(--text-dim)",
-              marginBottom: "12px",
-              letterSpacing: "1px"
+              marginBottom: "16px",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase"
             }}>
               <BookOpen size={16} />
-              READING MODE
+              Reading Mode
             </label>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "10px" }}>
               {[
-                { value: "single", label: "Single Page", icon: "📄" },
-                { value: "double", label: "Double Page (Book)", icon: "📖" },
-                { value: "webtoon", label: "Webtoon (Scroll)", icon: "📜" },
-              ].map((mode) => (
-                <button
-                  key={mode.value}
-                  onClick={() => setReadMode(mode.value as ReadMode)}
-                  style={{
-                    padding: "12px 16px",
-                    background: readMode === mode.value
-                      ? "rgba(0, 255, 170, 0.15)"
-                      : "rgba(255, 255, 255, 0.05)",
-                    border: `1px solid ${readMode === mode.value ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.1)"}`,
-                    borderRadius: "10px",
-                    color: readMode === mode.value ? "var(--accent-primary)" : "#fff",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    textAlign: "left",
-                    transition: "all 0.2s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
-                >
-                  <span style={{ fontSize: "18px" }}>{mode.icon}</span>
-                  {mode.label}
-                </button>
-              ))}
+                { value: "single", label: "Single Page", icon: FileText, desc: "One page at a time" },
+                { value: "double", label: "Double Page", icon: Book, desc: "Two pages like a book" },
+                { value: "webtoon", label: "Webtoon Scroll", icon: Scroll, desc: "Continuous scrolling" },
+              ].map((mode) => {
+                const Icon = mode.icon;
+                return (
+                  <button
+                    key={mode.value}
+                    onClick={() => setReadMode(mode.value as ReadMode)}
+                    style={{
+                      padding: "16px 18px",
+                      background: readMode === mode.value
+                        ? "linear-gradient(135deg, rgba(0, 255, 170, 0.15), rgba(0, 184, 255, 0.15))"
+                        : "rgba(255, 255, 255, 0.03)",
+                      border: `1.5px solid ${readMode === mode.value ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.08)"}`,
+                      borderRadius: "12px",
+                      color: readMode === mode.value ? "#fff" : "var(--text-dim)",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px"
+                    }}
+                  >
+                    <Icon size={22} style={{ flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <div>{mode.label}</div>
+                      <div style={{
+                        fontSize: "11px",
+                        fontWeight: 500,
+                        opacity: 0.7,
+                        marginTop: "2px"
+                      }}>
+                        {mode.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Zoom Control */}
-          <div style={{ marginBottom: "16px" }}>
+          <div>
             <label style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               fontSize: "13px",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "var(--text-dim)",
-              marginBottom: "12px",
-              letterSpacing: "1px"
+              marginBottom: "16px",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase"
             }}>
               <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <ZoomIn size={16} />
-                ZOOM
+                Zoom Level
               </span>
-              <span style={{ color: "var(--accent-primary)" }}>{zoom}%</span>
+              <span style={{
+                color: "var(--accent-primary)",
+                fontSize: "16px",
+                fontWeight: 900
+              }}>
+                {zoom}%
+              </span>
             </label>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr 1fr",
+              gap: "10px",
+              alignItems: "center"
+            }}>
               <button
                 onClick={() => setZoom(Math.max(zoom - 10, 50))}
                 style={{
-                  flex: 1,
-                  padding: "10px",
+                  padding: "12px",
                   background: "rgba(255, 255, 255, 0.05)",
                   border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   color: "#fff",
                   cursor: "pointer",
-                  fontWeight: 700
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s"
                 }}
               >
-                <ZoomOut size={18} />
+                <ZoomOut size={20} />
               </button>
               <button
                 onClick={() => setZoom(100)}
                 style={{
-                  flex: 2,
-                  padding: "10px",
-                  background: "rgba(0, 255, 170, 0.1)",
+                  padding: "12px",
+                  background: "linear-gradient(135deg, rgba(0, 255, 170, 0.15), rgba(0, 184, 255, 0.15))",
                   border: "1px solid rgba(0, 255, 170, 0.3)",
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   color: "var(--accent-primary)",
                   cursor: "pointer",
-                  fontWeight: 700,
-                  fontSize: "13px"
+                  fontWeight: 800,
+                  fontSize: "14px",
+                  letterSpacing: "1px",
+                  transition: "all 0.2s"
                 }}
               >
                 RESET
@@ -447,17 +541,20 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
               <button
                 onClick={() => setZoom(Math.min(zoom + 10, 200))}
                 style={{
-                  flex: 1,
-                  padding: "10px",
+                  padding: "12px",
                   background: "rgba(255, 255, 255, 0.05)",
                   border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   color: "#fff",
                   cursor: "pointer",
-                  fontWeight: 700
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s"
                 }}
               >
-                <ZoomIn size={18} />
+                <ZoomIn size={20} />
               </button>
             </div>
           </div>
@@ -477,17 +574,16 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
           gap: "8px",
           maxHeight: "70vh",
           overflowY: "auto",
-          padding: "8px",
-          background: "rgba(0, 0, 0, 0.5)",
+          padding: "12px 8px",
+          background: "rgba(0, 0, 0, 0.6)",
           borderRadius: "100px",
-          backdropFilter: "blur(10px)"
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.05)"
         }}>
           {pageUrls.map((_, i) => (
             <button
               key={i}
-              onClick={() => {
-                setCurrentPage(i);
-              }}
+              onClick={() => setCurrentPage(i)}
               style={{
                 width: i === currentPage ? "14px" : "10px",
                 height: i === currentPage ? "14px" : "10px",
@@ -496,11 +592,11 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
                   ? "var(--accent-primary)"
                   : i < currentPage
                     ? "rgba(0, 255, 170, 0.3)"
-                    : "rgba(255, 255, 255, 0.3)",
+                    : "rgba(255, 255, 255, 0.25)",
                 border: "none",
                 cursor: "pointer",
                 transition: "all 0.3s cubic-bezier(0.23, 1, 0.32, 1)",
-                boxShadow: i === currentPage ? "0 0 10px rgba(0, 255, 170, 0.5)" : "none",
+                boxShadow: i === currentPage ? "0 0 12px rgba(0, 255, 170, 0.6)" : "none",
               }}
               title={`Page ${i + 1}`}
             />
@@ -600,23 +696,23 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 60,
-            padding: "10px 28px",
+            padding: "12px 32px",
             borderRadius: "100px",
             fontWeight: 900,
-            fontSize: "15px",
+            fontSize: "16px",
             letterSpacing: "2px",
             background: "rgba(0, 0, 0, 0.9)",
             backdropFilter: "blur(20px)",
-            border: "1.5px solid rgba(0, 255, 170, 0.4)",
+            border: "2px solid rgba(0, 255, 170, 0.4)",
             color: "var(--accent-primary)",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)"
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 170, 0.2)"
           }}
         >
           {currentPage + 1} / {pageUrls.length}
         </div>
       )}
 
-      {/* Bottom Navigation */}
+      {/*Bottom Navigation */}
       {!cinemaMode && (
         <div
           style={{
@@ -680,17 +776,20 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
           position: "fixed",
           bottom: "20px",
           right: "20px",
-          background: "rgba(0, 0, 0, 0.8)",
-          padding: "12px 20px",
-          borderRadius: "12px",
-          fontSize: "12px",
+          background: "rgba(0, 0, 0, 0.9)",
+          padding: "16px 24px",
+          borderRadius: "16px",
+          fontSize: "13px",
           color: "var(--text-dim)",
           zIndex: 50,
-          animation: "fadeIn 0.5s"
+          border: "1px solid rgba(0, 255, 170, 0.2)"
         }}>
-          <div style={{ marginBottom: "4px", fontWeight: 600, color: "#fff" }}>🎬 Cinema Mode</div>
-          <div>← Click Left | Click Right →</div>
-          <div>Press C to exit</div>
+          <div style={{ marginBottom: "8px", fontWeight: 700, color: "var(--accent-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Monitor size={16} />
+            Cinema Mode Active
+          </div>
+          <div style={{ fontSize: "12px" }}>← Click Left | Click Right →</div>
+          <div style={{ fontSize: "12px", opacity: 0.7 }}>Press C to exit</div>
         </div>
       )}
     </div>

@@ -279,7 +279,7 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
               src={current.coverUrl}
               alt={current.title}
               fill
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", zIndex: 0 }}
               unoptimized
             />
           </div>

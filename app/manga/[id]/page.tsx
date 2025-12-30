@@ -9,41 +9,80 @@ import {
   Heart,
   Share2,
   Star,
+  StarHalf,
   Clock,
   ChevronRight,
   ArrowLeft,
   Info,
   Sparkles,
-  Command,
-  Layers,
   Bookmark,
-  User as UserIcon,
-  ShieldCheck,
   Share,
+  Copy,
+  Check,
 } from "lucide-react";
 import {
   getMangaDetails,
   getMangaChapters,
-  getPopularManga,
+  getRelatedManga,
   type Manga,
   type Chapter,
 } from "@/lib/manga-api";
 import Navbar from "@/components/Navbar";
 import MangaCard from "@/components/MangaCard";
 
-// Helper to summarize description
-const summarize = (text: string, length: number = 300) => {
-  if (!text) return "";
-  return text.length > length ? text.substring(0, length) + "..." : text;
-};
+// Get star color and render stars
+function RatingDisplay({ rating }: { rating: number }) {
+  const normalizedRating = (rating / 10) * 5;
+  const fullStars = Math.floor(normalizedRating);
+  const hasHalfStar = normalizedRating % 1 >= 0.5;
+
+  const getColor = (r: number) => {
+    if (r >= 8) return "#00ffaa";
+    if (r >= 6) return "#ffa500";
+    return "#ff4444";
+  };
+
+  const color = getColor(rating);
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+      <div style={{ display: "flex", gap: "2px" }}>
+        {[...Array(5)].map((_, i) => {
+          if (i < fullStars) {
+            return <Star key={i} size={18} fill={color} stroke={color} />;
+          } else if (i === fullStars && hasHalfStar) {
+            return <StarHalf key={i} size={18} fill={color} stroke={color} />;
+          } else {
+            return <Star key={i} size={18} stroke="rgba(255,255,255,0.2)" fill="none" />;
+          }
+        })}
+      </div>
+      <span style={{
+        fontSize: "20px",
+        fontWeight: 900,
+        color,
+        marginLeft: "4px"
+      }}>
+        {rating.toFixed(1)}
+      </span>
+    </div>
+  );
+}
 
 function DetailPoster({ manga }: { manga: Manga }) {
   return (
     <div
-      className="hero-poster-wrapper reveal-up"
-      style={{ maxWidth: "100%" }}
+      className="reveal-up"
+      style={{ maxWidth: "380px", position: "relative" }}
     >
-      <div className="hero-poster-card" style={{ transform: "none" }}>
+      <div style={{
+        position: "relative",
+        aspectRatio: "2/3",
+        borderRadius: "24px",
+        overflow: "hidden",
+        boxShadow: "0 30px 80px rgba(0, 0, 0, 0.6)",
+        border: "1px solid rgba(255, 255, 255, 0.1)"
+      }}>
         <Image
           src={manga.coverUrl}
           alt={manga.title}
@@ -58,18 +97,19 @@ function DetailPoster({ manga }: { manga: Manga }) {
           position: "absolute",
           top: "20px",
           left: "-20px",
-          padding: "8px 16px",
-          background: "var(--accent-primary)",
+          padding: "10px 20px",
+          background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
           color: "#000",
           fontWeight: 900,
-          borderRadius: "4px",
+          borderRadius: "8px",
           transform: "rotate(-5deg)",
-          boxShadow: "0 10px 20px rgba(0,0,0,0.5)",
+          boxShadow: "0 15px 30px rgba(0, 255, 170, 0.4)",
           fontSize: "14px",
-          letterSpacing: "1px",
+          letterSpacing: "1.5px",
+          zIndex: 10
         }}
       >
-        TOP RATED
+        ⭐ {manga.rating ? `${manga.rating.toFixed(1)} RATED` : "TOP RATED"}
       </div>
     </div>
   );
@@ -90,47 +130,68 @@ function ChapterCardCreative({
         display: "flex",
         alignItems: "center",
         gap: "20px",
-        padding: "16px",
+        padding: "18px",
         borderRadius: "16px",
         textDecoration: "none",
         color: "inherit",
+        transition: "all 0.3s",
       }}
     >
       <div
         style={{
-          width: "60px",
-          height: "60px",
-          borderRadius: "12px",
-          background: "rgba(0, 255, 170, 0.1)",
+          width: "64px",
+          height: "64px",
+          borderRadius: "14px",
+          background: "linear-gradient(135deg, rgba(0, 255, 170, 0.15), rgba(0, 184, 255, 0.15))",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           color: "var(--accent-primary)",
+          flexShrink: 0
         }}
       >
-        <Play size={24} fill="currentColor" />
+        <Play size={26} fill="currentColor" />
       </div>
-      <div style={{ flex: 1 }}>
-        <h4 style={{ fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h4 style={{
+          fontSize: "17px",
+          fontWeight: 800,
+          color: "#fff",
+          marginBottom: "6px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }}>
           CHAPTER {chapter.chapter}
+          {chapter.title && ` - ${chapter.title}`}
         </h4>
         <div
           style={{
             display: "flex",
             gap: "12px",
-            fontSize: "12px",
+            fontSize: "13px",
             color: "var(--text-dim)",
-            marginTop: "4px",
+            fontWeight: 600
           }}
         >
           <span>
-            {new Date(chapter.publishedAt).toLocaleDateString().toUpperCase()}
+            {new Date(chapter.publishedAt).toLocaleDateString("en-US", {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            }).toUpperCase()}
           </span>
           <span>•</span>
-          <span>{chapter.pages || 0} PAGES</span>
+          <span>{chapter.language.toUpperCase()}</span>
+          {chapter.pages > 0 && (
+            <>
+              <span>•</span>
+              <span>{chapter.pages} PAGES</span>
+            </>
+          )}
         </div>
       </div>
-      <ChevronRight size={18} style={{ color: "var(--text-dim)" }} />
+      <ChevronRight size={20} style={{ color: "var(--text-dim)", flexShrink: 0 }} />
     </Link>
   );
 }
@@ -144,21 +205,53 @@ export default function MangaPage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = React.useState<
     "chapters" | "info" | "related"
   >("chapters");
+  const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
-    Promise.all([
-      getMangaDetails(id),
-      getMangaChapters(id, ["en", "ar"]),
-      getPopularManga(10),
-    ])
-      .then(([mangaData, chaptersData, relatedData]) => {
+    setLoading(true);
+    getMangaDetails(id).then(async (mangaData) => {
+      if (mangaData) {
         setManga(mangaData);
+
+        // Get chapters
+        const chaptersData = await getMangaChapters(id, mangaData.availableLanguages || ["en"]);
         setChapters(chaptersData);
-        setRelated(relatedData.filter((m) => m.id !== id).slice(0, 6));
+
+        // Get related manga by genre
+        const genreTagIds = mangaData.genres || [];
+        const relatedData = await getRelatedManga(id, genreTagIds, 6);
+        setRelated(relatedData);
+
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
+    });
   }, [id]);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: manga?.title || "Manga",
+      text: `Check out ${manga?.title} on MangaFlix!`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        copyToClipboard();
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (loading) {
     return (
@@ -236,7 +329,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 2fr",
+            gridTemplateColumns: "380px 1fr",
             gap: "80px",
             marginBottom: "100px",
           }}
@@ -246,24 +339,37 @@ export default function MangaPage({ params }: { params: { id: string } }) {
             <DetailPoster manga={manga} />
             <div
               style={{
-                marginTop: "40px",
+                marginTop: "32px",
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                gridTemplateColumns: "1fr auto",
                 gap: "12px",
               }}
             >
               <button
                 className="btn-premium btn-fill"
+                onClick={() => {
+                  if (chapters.length > 0) {
+                    window.location.href = `/manga/${id}/chapter/${chapters[0].id}`;
+                  }
+                }}
                 style={{ width: "100%", justifyContent: "center" }}
               >
                 <Bookmark size={18} />
-                COLLECTION
+                START READING
               </button>
               <button
                 className="btn-premium btn-outline"
-                style={{ padding: "16px" }}
+                onClick={handleShare}
+                style={{
+                  padding: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px"
+                }}
+                title="Share"
               >
-                <Share size={18} />
+                {copied ? <Check size={18} /> : <Share size={18} />}
               </button>
             </div>
           </div>
@@ -274,8 +380,8 @@ export default function MangaPage({ params }: { params: { id: string } }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "12px",
-                marginBottom: "20px",
+                gap: "16px",
+                marginBottom: "24px",
               }}
             >
               <span className="hero-label" style={{ marginBottom: 0 }}>
@@ -298,6 +404,15 @@ export default function MangaPage({ params }: { params: { id: string } }) {
               >
                 {manga.year || "2024"}
               </span>
+              <span
+                style={{
+                  width: "4px",
+                  height: "4px",
+                  background: "var(--text-dark)",
+                  borderRadius: "50%",
+                }}
+              />
+              {manga.rating && <RatingDisplay rating={manga.rating} />}
             </div>
 
             <h1
@@ -306,32 +421,18 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                 fontWeight: 900,
                 lineHeight: 0.9,
                 letterSpacing: "-3px",
-                marginBottom: "16px",
+                marginBottom: "24px",
                 color: "#fff",
               }}
             >
               {manga.title}
             </h1>
 
-            {manga.titleAr && (
-              <p
-                style={{
-                  fontSize: "1.5rem",
-                  color: "var(--accent-primary)",
-                  fontWeight: 700,
-                  marginBottom: "24px",
-                  letterSpacing: "1px",
-                }}
-              >
-                {manga.titleAr}
-              </p>
-            )}
-
             <div
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: "8px",
+                gap: "10px",
                 marginBottom: "32px",
               }}
             >
@@ -340,11 +441,12 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                   key={i}
                   className="glass-effect"
                   style={{
-                    padding: "6px 16px",
+                    padding: "8px 18px",
                     borderRadius: "100px",
                     fontSize: "13px",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     color: "var(--text-dim)",
+                    letterSpacing: "0.5px"
                   }}
                 >
                   {g.toUpperCase()}
@@ -354,17 +456,15 @@ export default function MangaPage({ params }: { params: { id: string } }) {
 
             <p
               style={{
-                fontSize: "1.2rem",
-                lineHeight: 1.6,
+                fontSize: "1.15rem",
+                lineHeight: 1.7,
                 color: "var(--text-dim)",
                 maxWidth: "750px",
                 marginBottom: "48px",
               }}
             >
-              {summarize(
-                manga.description ||
-                "Enter a realm of unparalleled storytelling. This series invites you on an extraordinary journey of visual and narrative discovery.",
-              )}
+              {manga.description ||
+                "Enter a realm of unparalleled storytelling. This series invites you on an extraordinary journey of visual and narrative discovery."}
             </p>
 
             <div
@@ -390,7 +490,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                     letterSpacing: "1px",
                   }}
                 >
-                  ORGINAL NAME
+                  ORIGINAL NAME
                 </span>
                 <span
                   style={{ color: "#fff", fontSize: "15px", fontWeight: 600 }}
@@ -410,12 +510,54 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                     letterSpacing: "1px",
                   }}
                 >
-                  LEAD ARTIST
+                  AUTHOR/ARTIST
                 </span>
                 <span
                   style={{ color: "#fff", fontSize: "15px", fontWeight: 600 }}
                 >
-                  {manga.author || "JACK"}
+                  {manga.author || manga.artist || "Unknown"}
+                </span>
+              </div>
+              {manga.follows && (
+                <div>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      color: "var(--text-dark)",
+                      textTransform: "uppercase",
+                      marginBottom: "8px",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    FOLLOWERS
+                  </span>
+                  <span
+                    style={{ color: "#fff", fontSize: "15px", fontWeight: 600 }}
+                  >
+                    {manga.follows.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                    color: "var(--text-dark)",
+                    textTransform: "uppercase",
+                    marginBottom: "8px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  CHAPTERS
+                </span>
+                <span
+                  style={{ color: "#fff", fontSize: "15px", fontWeight: 600 }}
+                >
+                  {chapters.length} Available
                 </span>
               </div>
             </div>
@@ -449,7 +591,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                 letterSpacing: "1px",
               }}
             >
-              CHAPTERS
+              CHAPTERS ({chapters.length})
               {activeTab === "chapters" && (
                 <div
                   style={{
@@ -480,7 +622,7 @@ export default function MangaPage({ params }: { params: { id: string } }) {
                 letterSpacing: "1px",
               }}
             >
-              YOU MAY LIKE
+              YOU MAY LIKE ({related.length})
               {activeTab === "related" && (
                 <div
                   style={{
@@ -502,13 +644,25 @@ export default function MangaPage({ params }: { params: { id: string } }) {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-                  gap: "20px",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+                  gap: "16px",
                 }}
               >
-                {chapters.map((c) => (
+                {chapters.slice(0, 50).map((c) => (
                   <ChapterCardCreative key={c.id} chapter={c} mangaId={id} />
                 ))}
+                {chapters.length === 0 && (
+                  <div style={{
+                    textAlign: "center",
+                    padding: "60px 20px",
+                    color: "var(--text-dim)",
+                    gridColumn: "1/-1"
+                  }}>
+                    <p style={{ fontSize: "16px", fontWeight: 600 }}>
+                      No chapters available yet. Check back later!
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -522,9 +676,21 @@ export default function MangaPage({ params }: { params: { id: string } }) {
               >
                 {related.map((m) => (
                   <div key={m.id} style={{ width: "100%" }}>
-                    <MangaCard manga={m} />
+                    <MangaCard manga={m} showChapterCount={false} />
                   </div>
                 ))}
+                {related.length === 0 && (
+                  <div style={{
+                    textAlign: "center",
+                    padding: "60px 20px",
+                    color: "var(--text-dim)",
+                    gridColumn: "1/-1"
+                  }}>
+                    <p style={{ fontSize: "16px", fontWeight: 600 }}>
+                      No related manga found. Explore more titles!
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
