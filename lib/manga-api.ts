@@ -38,6 +38,35 @@ export interface ChapterPages {
     pagesHQ: string[];
 }
 
+// Clean description from links and markdown
+function cleanDescription(text: string): string {
+    if (!text) return "";
+
+    // Remove markdown links: [text](url)
+    let cleaned = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1");
+
+    // Remove remaining URLs
+    cleaned = cleaned.replace(/https?:\/\/[^\s]+/g, "");
+
+    // Remove markdown formatting
+    cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, "$1"); // Bold
+    cleaned = cleaned.replace(/\*([^*]+)\*/g, "$1"); // Italic
+    cleaned = cleaned.replace(/__([^_]+)__/g, "$1"); // Bold
+    cleaned = cleaned.replace(/_([^_]+)_/g, "$1"); // Italic
+
+    // Remove "---" separators
+    cleaned = cleaned.replace(/---+/g, "");
+
+    // Remove "Links:" sections and everything after
+    cleaned = cleaned.replace(/\*\*Links:\*\*[\s\S]*/gi, "");
+    cleaned = cleaned.replace(/Links:[\s\S]*/gi, "");
+
+    // Remove extra whitespace
+    cleaned = cleaned.replace(/\n\s*\n\s*\n/g, "\n\n").trim();
+
+    return cleaned;
+}
+
 // Status translations
 const statusMap: Record<string, string> = {
     ongoing: "مستمر",
@@ -98,14 +127,18 @@ function parseManga(data: any, coverFileName?: string): Manga {
     // Find Arabic title if available
     let titleAr = altTitles.find((t: any) => t.ar)?.ar;
 
-    // Get genres/tags
+    // Get genres/tags (English only)
     const genres = (attrs.tags || [])
         .filter(
             (tag: any) =>
                 tag.attributes?.group === "genre" || tag.attributes?.group === "theme",
         )
-        .map((tag: any) => translateGenre(tag.attributes?.name?.en || ""))
+        .map((tag: any) => tag.attributes?.name?.en || "")
         .filter(Boolean);
+
+    // Clean description
+    const rawDesc = descriptions.en || (Object.values(descriptions)[0] as string) || "";
+    const cleanedDesc = cleanDescription(rawDesc);
 
     return {
         id: data.id,
@@ -114,11 +147,10 @@ function parseManga(data: any, coverFileName?: string): Manga {
             titles["ja-ro"] ||
             (Object.values(titles)[0] as string) ||
             "Untitled",
-        titleAr,
+        titleAr: undefined,
         titleJa: titles.ja,
-        description:
-            descriptions.en || (Object.values(descriptions)[0] as string) || "",
-        descriptionAr: descriptions.ar,
+        description: cleanedDesc,
+        descriptionAr: undefined,
         coverUrl: coverFileName
             ? getCoverUrl(data.id, coverFileName)
             : "/placeholder-cover.jpg",

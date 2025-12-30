@@ -21,6 +21,10 @@ import {
   MousePointer2,
   Command,
   Sparkles,
+  X,
+  Globe,
+  BookOpen,
+  Layers,
 } from "lucide-react";
 import {
   getChapterPages,
@@ -34,6 +38,8 @@ interface ChapterPageProps {
   params: { id: string; chapterId: string };
 }
 
+type ReadMode = "single" | "double" | "webtoon";
+
 export default function ChapterReaderPage({ params }: ChapterPageProps) {
   const { id, chapterId } = params;
   const router = useRouter();
@@ -43,16 +49,17 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
   const [currentChapterIndex, setCurrentChapterIndex] = React.useState(-1);
   const [loading, setLoading] = React.useState(true);
   const [currentPage, setCurrentPage] = React.useState(0);
-  const [showUI, setShowUI] = React.useState(true);
+  const [readMode, setReadMode] = React.useState<ReadMode>("single");
+  const [language, setLanguage] = React.useState<string>("en");
+  const [showSettings, setShowSettings] = React.useState(false);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     setLoading(true);
-    // Remove Arabic language from API request
     Promise.all([
       getChapterPages(chapterId),
-      getMangaChapters(id, ["en", "ja"]),
+      getMangaChapters(id, ["en"]),
     ]).then(([pages, chapters]) => {
       setPagesData(pages);
       setAllChapters(chapters);
@@ -129,7 +136,7 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
 
   return (
     <div className="reader-container" ref={containerRef}>
-      {/* Immersive Top Bar */}
+      {/* Top Navigation Bar */}
       <nav
         style={{
           position: "fixed",
@@ -142,7 +149,7 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
           alignItems: "center",
           justifyContent: "space-between",
           background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)",
+            "linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
@@ -172,13 +179,7 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
                 letterSpacing: "-0.5px",
               }}
             >
-              CHAPTER {currentChapter?.chapter}{" "}
-              {currentChapter?.title && (
-                <span style={{ color: "var(--text-dim)", fontWeight: 600 }}>
-                  {" "}
-                  — {currentChapter.title.toUpperCase()}
-                </span>
-              )}
+              CHAPTER {currentChapter?.chapter}
             </h2>
           </div>
         </div>
@@ -200,9 +201,10 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
           </button>
           <button
             className="glass-effect"
+            onClick={() => setShowSettings(!showSettings)}
             style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: showSettings ? "rgba(0, 255, 170, 0.2)" : "rgba(255,255,255,0.05)",
+              border: `1px solid ${showSettings ? "var(--accent-primary)" : "rgba(255,255,255,0.1)"}`,
               padding: "10px",
               borderRadius: "12px",
               color: "#fff",
@@ -214,21 +216,139 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
         </div>
       </nav>
 
-      {/* Side Progress Dots (The "Virtual" Navigator) */}
-      <div className="reader-sidebar">
+      {/* Settings Panel */}
+      {showSettings && (
+        <div
+          style={{
+            position: "fixed",
+            top: "80px",
+            right: "40px",
+            zIndex: 101,
+            background: "rgba(0, 0, 0, 0.95)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "16px",
+            padding: "24px",
+            minWidth: "300px",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.8)",
+          }}
+        >
+          <div style={{ marginBottom: "24px" }}>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px"
+            }}>
+              <h3 style={{
+                fontSize: "18px",
+                fontWeight: 800,
+                color: "#fff"
+              }}>
+                READER SETTINGS
+              </h3>
+              <button
+                onClick={() => setShowSettings(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Read Mode */}
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{
+                display: "block",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "var(--text-dim)",
+                marginBottom: "12px",
+                letterSpacing: "1px"
+              }}>
+                <BookOpen size={14} style={{ display: "inline", marginRight: "6px" }} />
+                READING MODE
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {[
+                  { value: "single", label: "Single Page" },
+                  { value: "double", label: "Double Page (Book)" },
+                  { value: "webtoon", label: "Webtoon (Scroll)" },
+                ].map((mode) => (
+                  <button
+                    key={mode.value}
+                    onClick={() => setReadMode(mode.value as ReadMode)}
+                    style={{
+                      padding: "12px 16px",
+                      background: readMode === mode.value
+                        ? "rgba(0, 255, 170, 0.15)"
+                        : "rgba(255, 255, 255, 0.05)",
+                      border: `1px solid ${readMode === mode.value ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.1)"}`,
+                      borderRadius: "8px",
+                      color: readMode === mode.value ? "var(--accent-primary)" : "#fff",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Side Progress Dots */}
+      <div style={{
+        position: "fixed",
+        left: "20px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 50,
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        maxHeight: "60vh",
+        overflowY: "auto",
+      }}>
         {pageUrls.map((_, i) => (
-          <div
+          <button
             key={i}
-            className={`sidebar-dot ${i === currentPage ? "active" : ""}`}
             onClick={() => setCurrentPage(i)}
+            style={{
+              width: i === currentPage ? "12px" : "8px",
+              height: i === currentPage ? "12px" : "8px",
+              borderRadius: "50%",
+              background: i === currentPage ? "var(--accent-primary)" : "rgba(255, 255, 255, 0.3)",
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
             title={`Page ${i + 1}`}
           />
         ))}
       </div>
 
-      {/* Virtual Page Panels Viewport */}
+      {/* Page Viewer */}
       <div
-        className="reader-viewport"
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#000",
+          paddingTop: "80px",
+          paddingBottom: "120px",
+        }}
         onClick={(e) => {
           const x = e.clientX;
           const w = window.innerWidth;
@@ -236,131 +356,142 @@ export default function ChapterReaderPage({ params }: ChapterPageProps) {
           else if (x > w * 0.7) nextPage();
         }}
       >
-        <div className="panel-group">
-          {pageUrls.map((url, i) => {
-            let status = "panel-next";
-            if (i === currentPage) status = "panel-active";
-            if (i < currentPage) status = "panel-prev";
-
-            // Only render current and adjacent pages for performance
-            if (Math.abs(i - currentPage) > 2) return null;
-
-            return (
-              <div key={i} className={`virtual-page-panel ${status}`}>
-                <Image
-                  src={url}
-                  alt={`Page ${i + 1}`}
-                  width={1000}
-                  height={1500}
-                  style={{
-                    width: "auto",
-                    height: "90vh",
-                    objectFit: "contain",
-                  }}
-                  priority={i === currentPage}
-                  unoptimized
-                />
-              </div>
-            );
-          })}
-        </div>
+        {readMode === "webtoon" ? (
+          // Webtoon mode - show all pages vertically
+          <div style={{ maxWidth: "800px", width: "100%" }}>
+            {pageUrls.map((url, i) => (
+              <Image
+                key={i}
+                src={url}
+                alt={`Page ${i + 1}`}
+                width={800}
+                height={1200}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  marginBottom: "4px",
+                }}
+                unoptimized
+              />
+            ))}
+          </div>
+        ) : readMode === "double" && currentPage < pageUrls.length - 1 ? (
+          // Double page mode
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Image
+              src={pageUrls[currentPage]}
+              alt={`Page ${currentPage + 1}`}
+              width={600}
+              height={900}
+              style={{
+                width: "auto",
+                height: "85vh",
+                objectFit: "contain",
+              }}
+              unoptimized
+            />
+            <Image
+              src={pageUrls[currentPage + 1]}
+              alt={`Page ${currentPage + 2}`}
+              width={600}
+              height={900}
+              style={{
+                width: "auto",
+                height: "85vh",
+                objectFit: "contain",
+              }}
+              unoptimized
+            />
+          </div>
+        ) : (
+          // Single page mode
+          <Image
+            src={pageUrls[currentPage]}
+            alt={`Page ${currentPage + 1}`}
+            width={1000}
+            height={1500}
+            style={{
+              width: "auto",
+              height: "85vh",
+              objectFit: "contain",
+            }}
+            priority
+            unoptimized
+          />
+        )}
       </div>
 
-      {/* Floating Indicators */}
+      {/* Page Indicator - Moved to Top Right */}
       <div
         style={{
           position: "fixed",
-          bottom: "40px",
+          top: "80px",
           left: "50%",
           transform: "translateX(-50%)",
-          zIndex: 100,
-          display: "flex",
-          alignItems: "center",
-          gap: "20px",
+          zIndex: 60,
+          padding: "8px 24px",
+          borderRadius: "100px",
+          fontWeight: 900,
+          fontSize: "14px",
+          letterSpacing: "2px",
+          background: "rgba(0, 0, 0, 0.8)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(0, 255, 170, 0.3)",
+          color: "var(--accent-primary)",
         }}
       >
-        <div
-          className="glass-effect"
-          style={{
-            padding: "8px 24px",
-            borderRadius: "100px",
-            fontWeight: 900,
-            fontSize: "14px",
-            letterSpacing: "2px",
-            background: "rgba(0,255,170,0.1)",
-            border: "1px solid var(--accent-primary)",
-            color: "var(--accent-primary)",
-          }}
-        >
-          PAGE {currentPage + 1} / {pageUrls.length}
-        </div>
+        {currentPage + 1} / {pageUrls.length}
       </div>
 
-      {/* Reader Controls Footer */}
-      <div className="reader-bottom-nav">
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <button
-            className="btn-premium btn-outline"
-            onClick={prevPage}
-            disabled={currentPage === 0 && !prevChapter}
-            style={{
-              padding: "12px 24px",
-              fontSize: "13px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <SkipBack size={16} />
-            PREVIOUS
-          </button>
-
-          <div
-            style={{
-              width: "1px",
-              height: "24px",
-              background: "rgba(255,255,255,0.1)",
-              margin: "0 10px",
-            }}
-          />
-
-          <button
-            className="btn-premium btn-fill"
-            onClick={nextPage}
-            style={{
-              padding: "12px 24px",
-              fontSize: "13px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            NEXT
-            <SkipForward size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* Custom Branding Watermark */}
+      {/* Bottom Navigation - Redesigned */}
       <div
         style={{
           position: "fixed",
-          bottom: "20px",
-          right: "30px",
-          opacity: 0.3,
-          pointerEvents: "none",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 90,
+          padding: "20px 40px",
+          background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)",
+          display: "flex",
+          justifyContent: "center",
+          gap: "16px",
         }}
       >
-        <span
+        <button
+          className="btn-premium btn-outline"
+          onClick={prevPage}
+          disabled={currentPage === 0 && !prevChapter}
           style={{
-            fontSize: "10px",
-            fontWeight: 900,
-            letterSpacing: "4px",
-            color: "#fff",
+            padding: "14px 28px",
+            fontSize: "14px",
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "rgba(0, 0, 0, 0.8)",
+            backdropFilter: "blur(10px)",
           }}
         >
-          ARCHIVED BY JACK
-        </span>
+          <SkipBack size={18} />
+          PREVIOUS
+        </button>
+
+        <button
+          className="btn-premium btn-fill"
+          onClick={nextPage}
+          style={{
+            padding: "14px 28px",
+            fontSize: "14px",
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          NEXT
+          <SkipForward size={18} />
+        </button>
       </div>
     </div>
   );
