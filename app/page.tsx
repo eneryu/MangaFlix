@@ -203,24 +203,78 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
           </div>
         </div>
 
-        {/* Poster */}
+        {/* 3D Poster Card */}
         <div
           className="reveal-up"
           style={{
             animationDelay: "0.2s",
             position: 'relative',
             maxWidth: '450px',
-            justifySelf: 'end'
+            justifySelf: 'end',
+            perspective: '1000px'
           }}
         >
-          <div style={{
-            position: 'relative',
-            aspectRatio: '2/3',
-            borderRadius: '24px',
-            overflow: 'hidden',
-            boxShadow: '0 40px 100px rgba(0, 0, 0, 0.6)',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
+          {/* Floating Badge */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-20px',
+              left: '-20px',
+              padding: '10px 20px',
+              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+              color: '#000',
+              fontWeight: 900,
+              borderRadius: '8px',
+              transform: 'rotate(-5deg)',
+              boxShadow: '0 15px 40px rgba(0, 255, 170, 0.4)',
+              fontSize: '14px',
+              letterSpacing: '1.5px',
+              zIndex: 10,
+              animation: 'float 3s ease-in-out infinite'
+            }}
+          >
+            ⭐ TOP RATED
+          </div>
+
+          {/* Main 3D Card */}
+          <div
+            style={{
+              position: 'relative',
+              aspectRatio: '2/3',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 50px 100px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              transform: 'rotateY(-5deg) rotateX(2deg)',
+              transition: 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
+              transformStyle: 'preserve-3d'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'rotateY(-5deg) rotateX(2deg) scale(1)';
+            }}
+          >
+            {/* Gradient Overlay */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%)',
+              zIndex: 1,
+              pointerEvents: 'none'
+            }} />
+
+            {/* Shine Effect */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+              zIndex: 2,
+              pointerEvents: 'none',
+              animation: 'shine 3s ease-in-out infinite'
+            }} />
+
             <Image
               src={current.coverUrl}
               alt={current.title}
@@ -228,6 +282,45 @@ function HeroShowcase({ mangas }: { mangas: Manga[] }) {
               style={{ objectFit: "cover" }}
               unoptimized
             />
+          </div>
+
+          {/* Stats Pills */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-15px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: '12px',
+            zIndex: 10
+          }}>
+            <div style={{
+              padding: '8px 16px',
+              background: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '100px',
+              fontSize: '12px',
+              fontWeight: 800,
+              color: 'var(--accent-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              ⭐ 4.9
+            </div>
+            <div style={{
+              padding: '8px 16px',
+              background: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '100px',
+              fontSize: '12px',
+              fontWeight: 800,
+              color: '#fff'
+            }}>
+              CH. 124
+            </div>
           </div>
         </div>
       </div>
