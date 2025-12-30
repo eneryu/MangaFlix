@@ -41,7 +41,7 @@ function DetailPoster({ manga }: { manga: Manga }) {
   return (
     <div
       className="hero-poster-wrapper reveal-up"
-      style={{ maxWidth: "380px" }}
+      style={{ maxWidth: "100%" }}
     >
       <div className="hero-poster-card" style={{ transform: "none" }}>
         <Image
