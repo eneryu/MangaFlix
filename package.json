@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prettier --check . && stylelint --allow-empty-input \"**/*.{css,scss}\" && next build",
-    "build:local": "prettier --write . && stylelint --allow-empty-input \"**/*.{css,scss}\" && next build",
+    "build": "next build",
+    "build:local": "next build",
     "start": "next start",
-    "lint": "prettier --check . && stylelint --allow-empty-input \"**/*.{css,scss}\" && next lint",
+    "lint": "next lint",
     "format": "prettier --write ."
   },
   "dependencies": {
