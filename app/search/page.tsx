@@ -191,7 +191,7 @@ export default function SearchPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyBetween: "space-between",
+              justifyContent: "space-between",
               marginBottom: "32px",
             }}
           >
