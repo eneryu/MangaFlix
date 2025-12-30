@@ -1,51 +1,68 @@
-# NextJS-Shadcn-template
+# MANGAFLIX
+> **The Ultimate Creative Manga Experience.**  
+> *Designed & Developed by Jack.*
 
-![Next-Shadcn](public/readme-image.jpg)
+![MangaFlix Banner](https://mir-s3-cdn-cf.behance.net/project_modules/fs/8d6074187034633.6582ea8d5306d.png)
 
-[![forthebadge](https://res.cloudinary.com/yehez/image/upload/v1635325228/made-by-typescript_mz1tue.svg)](https://forthebadge.com)
+## 🌟 Overview
 
-This is a Next JS + Shadcn UI personalized template. Actually, I made this for myself so I don't need to waste my time to overthinking about the config and setup and focusing on the development.
+**MangaFlix** is a high-fidelity manga streaming platform redifining the reading experience. Built with a bespoke **Glassmorphic** design system, it moves beyond generic grid layouts to offer an immersive, portal-like interface. 
 
-But if you also find this template is useful, you also can use it. And of course I'm open to any feedbacks. You can fork or clone this repo and make a PR here if you have a some idea.
+At its core features the **Virtual Page Panel Reader**, a custom-built engine that renders manga pages as 3D-interactive panels for a seamless and premium reading journey.
 
-## ⚡ What's include here?
+## ✨ Key Features
 
-- 🚀 **Next.js 14**
-- ⛓️ **TypeScript**
-- 👌 **Shadcn/ui**
-- 🧥 **Sass and TailwindCSS**
-- ✔️ **toolings** for linting, formatting, and conventions configured
-  - `eslint`,`prettier`.
-- **lucide-react** for icons.
+### 🎨 Creative UI/UX ("The Multiverse Design")
+- **Glassmorphic 2.0**: A premium aesthetic using advanced backdrop filters, deep gradients, and strict 12-column alignment.
+- **Immersive Details**: "Portal" pages that adapt their color mood based on the manga's artwork.
+- **MangaCard V3**: Interactive cards with depth-hover effects, revealing quick actions and metadata instantly.
 
-## Pre-requisites
+### 📖 Virtual Panel Reader
+- **3D Transitions**: Smooth, hardware-accelerated 3D flips between pages.
+- **Smart Navigation**: A glassmorphic sidebar for rapid page jumping without clutter.
+- **Zen Mode**: Controls auto-fade to let the art breathe, supporting full-screen immersion.
 
-1. [Node.js](https://nodejs.org/en/) or nvm installed.
-2. `pnpm` installed.
+### ⚡ Performance & Tech
+- **Infinite Scrolling**: Dynamic fetching of new content categories as you explore.
+- **Optimized for Speed**: Built on **Next.js 14 (App Router)** for lightning-fast server-side rendering.
+- **Responsive Motion**: Fluid animations utilizing native CSS hardware acceleration.
 
-## How to use it?
+## 🛠️ Technology Stack
 
-1. You can easily use this template by run:
+- **Framework**: Next.js 14 (TypeScript)
+- **Styling**: Tailwind CSS + Custom CSS Variables
+- **Icons**: Lucide React
+- **State**: React Hooks (Advanced State Management)
+- **Deployment**: Vercel
 
-```bash
-pnpm create next-app -e https://github.com/pilladipesh33/next-shadcn
-```
+## 🚀 Getting Started
 
-2. After cloning the project, run this command: `pnpm` or `pnpm install`.
+To run this project locally:
 
-3. Then, run the development server:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/eneryu/MangaFlix.git
+   cd MangaFlix
+   ```
 
-```bash
-pnpm run dev
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-## References
+## 👨‍💻 Author
 
-- [Next.js Docs](https://nextjs.org/docs/getting-started) - Learn about Next JS and its features
-- [Shadcn UI](https://ui.shadcn.com/) - UI component
-- [Typescript](https://www.typescriptlang.org/) - The programming language
-- [SCSS/SASS](https://sass-lang.com/)
+**Jack**  
+*Lead Designer & Developer*
+
+---
+*© 2024 MangaFlix. All rights reserved.*
