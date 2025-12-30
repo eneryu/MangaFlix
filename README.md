@@ -2,7 +2,7 @@
 > **The Ultimate Creative Manga Experience.**  
 > *Designed & Developed by Jack.*
 
-![MangaFlix Banner](https://mir-s3-cdn-cf.behance.net/project_modules/fs/8d6074187034633.6582ea8d5306d.png)
+![MangaFlix Banner](./overview.jpg)
 
 ## 🌟 Overview
 
